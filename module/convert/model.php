@@ -3,7 +3,7 @@
  * The model file of convert module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     convert
  * @version     $Id: model.php 4129 2013-01-18 01:58:14Z wwccss $
@@ -81,6 +81,8 @@ class convertModel extends model
         unset($userConstants['TABLE_STORYSPEC']);
         unset($userConstants['TABLE_TEAM']);
         unset($userConstants['TABLE_USERGROUP']);
+        unset($userConstants['TABLE_STORYSTAGE']);
+        unset($userConstants['TABLE_SEARCHDICT']);
 
         /* Get max id of every table. */
         foreach($userConstants as $key => $value)

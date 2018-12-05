@@ -2,6 +2,14 @@
 $config->product = new stdclass();
 $config->product->orderBy = 'isClosed,order_desc';
 
+$config->product->customBatchEditFields = 'line,PO,QD,RD,status,type,desc';
+
+$config->product->custom = new stdclass();
+$config->product->custom->batchEditFields = 'line,PO,QD,RD,status';
+
+$config->product->list = new stdclass();
+$config->product->list->exportFields = 'id,name,line,activeStories,changedStories,draftStories,closedStories,plans,releases,bugs,unResolvedBugs,assignToNullBugs';
+
 global $lang, $app;
 $app->loadLang('story');
 $config->product->search['module']             = 'story';
@@ -13,12 +21,14 @@ $config->product->search['fields']['status']   = $lang->story->status;
 $config->product->search['fields']['pri']      = $lang->story->pri;
 
 $config->product->search['fields']['product']  = $lang->story->product;
+$config->product->search['fields']['branch']   = '';
 $config->product->search['fields']['module']   = $lang->story->module;
 $config->product->search['fields']['plan']     = $lang->story->plan;
 $config->product->search['fields']['estimate'] = $lang->story->estimate;
 
-$config->product->search['fields']['source']  = $lang->story->source;
-$config->product->search['fields']['fromBug'] = $lang->story->fromBug;
+$config->product->search['fields']['source']     = $lang->story->source;
+$config->product->search['fields']['sourceNote'] = $lang->story->sourceNote;
+$config->product->search['fields']['fromBug']    = $lang->story->fromBug;
 
 $config->product->search['fields']['openedBy']     = $lang->story->openedBy;
 $config->product->search['fields']['reviewedBy']   = $lang->story->reviewedBy;
@@ -44,11 +54,13 @@ $config->product->search['params']['stage']          = array('operator' => '=', 
 $config->product->search['params']['pri']            = array('operator' => '=',       'control' => 'select', 'values' => $lang->story->priList);
 
 $config->product->search['params']['product']        = array('operator' => '=',       'control' => 'select', 'values' => '');
+$config->product->search['params']['branch']         = array('operator' => '=',       'control' => 'select', 'values' => '');
 $config->product->search['params']['module']         = array('operator' => 'belong',  'control' => 'select', 'values' => '');
 $config->product->search['params']['plan']           = array('operator' => '=',       'control' => 'select', 'values' => '');
 $config->product->search['params']['estimate']       = array('operator' => '=',       'control' => 'input',  'values' => '');
 
 $config->product->search['params']['source']         = array('operator' => '=',       'control' => 'select', 'values' => $lang->story->sourceList);
+$config->product->search['params']['sourceNote']     = array('operator' => 'include', 'control' => 'input',  'values' => '');
 $config->product->search['params']['fromBug']        = array('operator' => '=',       'control' => 'input',  'values' => '');
 
 $config->product->search['params']['openedBy']       = array('operator' => '=',       'control' => 'select', 'values' => 'users');
@@ -62,18 +74,33 @@ $config->product->search['params']['mailto']         = array('operator' => 'incl
 $config->product->search['params']['closedReason']   = array('operator' => '=',       'control' => 'select', 'values' => $lang->story->reasonList);
 $config->product->search['params']['version']        = array('operator' => '>=',      'control' => 'input',  'values' => '');
 
-$config->product->search['params']['openedDate']     = array('operator' => '>=', 'control' => 'input', 'values' => '', 'class' => 'date');
-$config->product->search['params']['reviewedDate']   = array('operator' => '>=', 'control' => 'input', 'values' => '', 'class' => 'date');
-$config->product->search['params']['assignedDate']   = array('operator' => '>=', 'control' => 'input', 'values' => '', 'class' => 'date');
-$config->product->search['params']['closedDate']     = array('operator' => '>=', 'control' => 'input', 'values' => '', 'class' => 'date');
-$config->product->search['params']['lastEditedDate'] = array('operator' => '>=', 'control' => 'input', 'values' => '', 'class' => 'date');
+$config->product->search['params']['openedDate']     = array('operator' => '=', 'control' => 'input', 'values' => '', 'class' => 'date');
+$config->product->search['params']['reviewedDate']   = array('operator' => '=', 'control' => 'input', 'values' => '', 'class' => 'date');
+$config->product->search['params']['assignedDate']   = array('operator' => '=', 'control' => 'input', 'values' => '', 'class' => 'date');
+$config->product->search['params']['closedDate']     = array('operator' => '=', 'control' => 'input', 'values' => '', 'class' => 'date');
+$config->product->search['params']['lastEditedDate'] = array('operator' => '=', 'control' => 'input', 'values' => '', 'class' => 'date');
 
 $config->product->create = new stdclass();
 $config->product->edit   = new stdclass();
-$config->product->create->requiredFields = 'name,code';
-$config->product->edit->requiredFields   = 'name,code';
+$config->product->create->requiredFields = 'name';
+$config->product->edit->requiredFields   = 'name';
 
 $config->product->editor = new stdclass();
 $config->product->editor->create = array('id' => 'desc', 'tools' => 'simpleTools');
 $config->product->editor->edit   = array('id' => 'desc', 'tools' => 'simpleTools');
 $config->product->editor->close  = array('id' => 'comment', 'tools' => 'simpleTools');
+
+$config->product->report = new stdclass();
+$config->product->report->stage = array();
+$config->product->report->stageLabels[] = 'wait';
+$config->product->report->stageLabels[] = 'planed';
+$config->product->report->stageLabels[] = 'released';
+
+$config->product->report->planLabels   = array();
+$config->product->report->planLabels[] = '';
+
+$config->product->report->projectLabels   = array();
+$config->product->report->projectLabels[] = '';
+
+$config->product->report->planLabels   = array();
+$config->product->report->planLabels[] = '';

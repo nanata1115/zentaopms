@@ -3,7 +3,7 @@
  * The model file of api module of ZenTaoCMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     api
  * @version     $Id$
@@ -15,7 +15,7 @@ class apiModel extends model
     {
         $fileName  = dirname($filePath);
         $className = basename(dirname(dirname($filePath)));
-        if(!class_exists($className)) include($fileName);
+        if(!class_exists($className)) helper::import($fileName);
         $methodName = basename($filePath);
 
         $method = new ReflectionMethod($className . $ext, $methodName);
@@ -51,7 +51,7 @@ class apiModel extends model
      */
     public function request($moduleName, $methodName, $action)
     {
-        $host  = common::getSysURL() . $this->config->webRoot;
+        $host  = common::getSysURL();
         $param = '';
         if($action == 'extendModel')
         {

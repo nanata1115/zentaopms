@@ -1,4 +1,20 @@
-$(document).ready(function()
+/**
+ * Load branches 
+ * 
+ * @param  int $productID 
+ * @access public
+ * @return void
+ */
+function loadBranches(productID)
 {
-    $("a.preview").modalTrigger({width:1000, type:'iframe'});
-})
+    $('#branch').remove();
+    $('#branch_chosen').remove();
+    $.get(createLink('branch', 'ajaxGetBranches', 'productID=' + productID + '&oldBranch=' + productGroups[productID]['branch']), function(data)
+    {
+        if(data)
+        {
+            $('#product').closest('.input-group').append(data);
+            $('#branch').chosen();
+        }
+    });
+}

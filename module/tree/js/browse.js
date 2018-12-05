@@ -6,21 +6,41 @@ function syncModule(rootID, type)
     link = createLink('tree', 'ajaxGetSonModules', 'moduleID=' + moduleID + '&rootID=' + rootID + '&type=' + type);
     $.getJSON(link, function(modules)
     {
-        $('.helplink').addClass('hidden');
-        $.each(modules, function(key, value)
-        {   
-            moduleName = value;
-            $('.form-control').each(function()
-            {
-                if(this.value == moduleName) modules[key] = null;
-                if(!this.value) $(this).parent().remove();
-            })
-        });  
+        if(modules.length == 0) return false;
 
-        $.each(modules, function(key, value)
-        {  
-            if(value) $('#sonModule').append("<span><input type='text' name='modules[]' value='" + value + "' style='margin-bottom:5px' class='form-control' /><span>");
+        $('.helplink').addClass('hidden');
+        var $inputgroup = $('<div></div>').append($('.col-actions .icon-close:first').closest('.table-row').clone()).html();
+
+        $.each(modules, function(key, module)
+        {
+            $('#sonModule > .table-row').each(function()
+            {
+                moduleName = $(this).find('input[id^=modules]').val();
+                if(moduleName == module.name) modules[key] = null;
+                if(!moduleName) $(this).closest('#sonModule > .table-row').not('.copy').remove();
+            })
+        });
+
+        $.each(modules, function(key, module)
+        {
+            if(module)
+            {
+                /* Duplicate removal for mdoule name. */
+                var unique = true;
+                $('#sonModule > .table-row').not('.copy').each(function()
+                {
+                    if($(this).find('.table-col:first').find(':input').val() == module.name) unique = false;
+                })
+
+                if(unique)
+                {
+                    $('#sonModule').append($inputgroup);
+                    $('#sonModule .table-row:last input[id^=modules]').val(module.name);
+                    $('#sonModule .table-row:last input[id^=shorts]').val(module.short);
+                }
+            }
         })
+        $('#sonModule').append($inputgroup);
     })
 }
 
@@ -28,15 +48,15 @@ function syncProductOrProject(obj, type)
 {
     if(type == 'product') viewType = 'story';
     if(type == 'project') viewType = 'task';
-    link = createLink('tree', 'ajaxGetOptionMenu', 'rootID=' + obj.value + "&viewType=" + viewType + "&rootModuleID=0&returnType=json");
+    link = createLink('tree', 'ajaxGetOptionMenu', 'rootID=' + obj.value + "&viewType=" + viewType + "&branch=0&rootModuleID=0&returnType=json");
     $.getJSON(link, function(modules)
     {
         $('.helplink').addClass('hidden');
         $('#' + type + 'Module').empty();
         $.each(modules, function(key, value)
-        {  
+        {
             $('#' + type + 'Module').append('<option value=' + key + '>' + value + '</option')
-        }); 
+        });
         $('#' + type + 'Module').trigger("chosen:updated");
     })
     $('#copyModule').attr('onclick', null);
@@ -45,7 +65,7 @@ function syncProductOrProject(obj, type)
 
 function toggleCopy()
 {
-   var $copy = $('table.copy');
+   var $copy = $('.table-row.copy');
    if($copy.size() == 0) return false;
    $copy.toggle();
 }
@@ -53,6 +73,5 @@ function toggleCopy()
 $(document).ready(function()
 {
     toggleCopy();
-//    $("#submenucreate").modalTrigger({type: 'iframe', width: 500});
-//    $("#submenuedit").modalTrigger({type: 'iframe', width: 500});
+    $('[data-id="edit"] a').modalTrigger({type: 'iframe', width: 500});
 });

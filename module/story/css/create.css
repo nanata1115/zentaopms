@@ -1,3 +1,5 @@
-#mailto {width:90.3%}
-select {border:1px solid #ccc}
-#module_chosen.chosen-container .chosen-drop {min-width: 400px; border-top: 1px solid #ddd!important}
+.input-control.required:after {display: block; right: 29px; top: 5px;}
+#pri + .chosen-container > .chosen-single {border-top-left-radius: 0!important; border-bottom-left-radius: 0!important;}
+
+.pri-selector > .btn {padding: 5px 8px!important; width: 100%;}
+.pri-selector > .dropdown-menu {padding: 10px;}

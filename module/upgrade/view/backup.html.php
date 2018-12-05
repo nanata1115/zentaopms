@@ -3,7 +3,7 @@
  * The html template file of index method of upgrade module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     upgrade
  * @version     $Id: index.html.php 4129 2013-01-18 01:58:14Z wwccss $
@@ -20,7 +20,7 @@
         <div class='content'><?php echo $lang->upgrade->warnningContent;?></div>
       </div>
     </div>
-    <div class='modal-footer'><?php echo html::linkButton($lang->upgrade->common, inlink('checkExtension'), 'self', '', 'btn-primary');?></div>
+    <div class='modal-footer'><?php echo html::linkButton($lang->upgrade->common, inlink('consistency'), 'self', '', 'btn btn-primary');?></div>
   </div>
 </div>
 <?php include '../../common/view/footer.lite.html.php';?>

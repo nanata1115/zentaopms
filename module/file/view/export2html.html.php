@@ -3,7 +3,7 @@
  * The export2html view file of file module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Congzhi Chen <congzhi@cnezsoft.com>
  * @package     file
  * @version     $Id$
@@ -15,9 +15,11 @@
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 <style>
 table, th, td{font-size:12px; border:1px solid gray; border-collapse:collapse;}
+table th,table td{padding:5px;}
 </style>
 <title><?php echo $fileName;?></title>
 <body>
+<?php if($this->post->kind == 'task') echo "<font color='red'>" . $this->lang->file->childTaskTag . '</font>';?>
 <table>
   <tr>
   <?php

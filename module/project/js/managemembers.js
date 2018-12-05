@@ -1,16 +1,4 @@
 /**
- * Import a team.
- * 
- * @access public
- * @return void
- */
-function importTeam(val)
-{
-    if(val == undefined) val = $('#teams2Import').val();
-    location.href = createLink('project', 'manageMembers', 'project=' + projectID + '&teamImport=' + val);
-}
-
-/**
  * Set role when select an account.
  * 
  * @param  string $account 
@@ -25,9 +13,31 @@ function setRole(account, roleID)
     roleOBJ.val(role)               // set the role.
 }
 
-$(function()
+function addItem(obj)
 {
-    $('#itBtn').click(function(){$('#importTeamModal').modal('show')});
-    $('#importTeams a').click(function(){importTeam($(this).data('id')); $('#importTeamModal').modal('hide')});
-});
+    var item = $('#addItem').html().replace(/%i%/g, i);
+    $(obj).closest('tr').after('<tr class="addedItem">' + item  + '</tr>');
+    var accounts = $('#hours' + i).closest('tr').find('select:first')
+    accounts.trigger('liszt:updated');
+    accounts.chosen();
+    i ++;
+}
 
+function deleteItem(obj)
+{
+    $(obj).closest('.addedItem').remove();
+}
+
+function setDeptUsers(obj)
+{
+    dept = $(obj).val();//Get dept ID.
+    link = createLink('project', 'manageMembers', 'projectID=' + projectID + '&team2Import=' + team2Import + '&dept=' + dept);//Create manageMembers link.
+    location.href=link;
+}
+
+function choseTeam2Copy(obj)
+{
+    team = $(obj).val();
+    link = createLink('project', 'manageMembers', 'projectID=' + projectID + '&team2Import=' + team);
+    location.href=link;
+}

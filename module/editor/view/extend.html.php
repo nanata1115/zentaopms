@@ -3,7 +3,7 @@
  * The editor view file of dir module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     editor
  * @version     $Id$
@@ -11,17 +11,15 @@
  */
 ?>
 <?php include '../../common/view/header.lite.html.php';?>
-<?php include '../../common/view/treeview.html.php';?>
-<div class='panel panel-sm'>
-  <div class='panel-heading'><i class='icon-list-ul'></i> <strong><?php echo isset($lang->editor->modules[$module])? $lang->editor->modules[$module] : $module;?></strong></div>
-  <div class='panel-body'>
+<div class='main-header'>
+  <div class='heading'><i class='icon-list-ul'></i> <strong><?php echo isset($lang->editor->modules[$module])? $lang->editor->modules[$module] : $module;?></strong></div>
+</div>
+<div class='main-content'>
   <?php echo $tree?>
-  </div>
 </div>
 <script>
 $(function()
 {
-    $("#extendTree").treeview();
     $('.hitarea').click(function()
     {
         var $this  = $(this);

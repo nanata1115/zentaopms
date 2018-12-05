@@ -3,7 +3,7 @@
  * The model file of cron module of ZenTaoCMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     cron
  * @version     $Id$
@@ -121,7 +121,8 @@ class cronModel extends model
      */
     public function getLastTime()
     {
-        return $this->dao->select('*')->from(TABLE_CRON)->orderBy('lastTime desc')->limit(1)->fetch('lastTime');
+        $cron = $this->dao->select('*')->from(TABLE_CRON)->orderBy('lastTime desc')->limit(1)->fetch();
+        return isset($cron->lastTime) ? $cron->lastTime : $cron->lasttime;
     }
 
     /**
@@ -163,15 +164,19 @@ class cronModel extends model
     public function create()
     {
         $cron = fixer::input('post')
-            ->add('type', 'custom')
             ->add('status', 'normal')
             ->add('lastTime', '0000-00-00 00:00:00')
             ->skipSpecial('m,h,dom,mon,dow,command')
             ->get();
-        $this->dao->insert(TABLE_CRON)->data($cron)
-            ->autoCheck()
-            ->batchCheck($this->config->cron->create->requiredFields, 'notempty')
-            ->exec();
+
+        $result = $this->checkRule($cron);
+        if(!empty($result))
+        {
+            dao::$errors[] = $result;
+            return false;
+        }
+
+        $this->dao->insert(TABLE_CRON)->data($cron)->autoCheck()->exec();
 
         return $this->dao->lastInsertID();
     }
@@ -189,11 +194,34 @@ class cronModel extends model
             ->add('lastTime', '0000-00-00 00:00:00')
             ->skipSpecial('m,h,dom,mon,dow,command')
             ->get();
-        $this->dao->update(TABLE_CRON)->data($cron)
-            ->autoCheck()
-            ->batchCheck($this->config->cron->create->requiredFields, 'notempty')
-            ->where('id')->eq($cronID)->exec();
+
+        $result = $this->checkRule($cron);
+        if(!empty($result))
+        {
+            dao::$errors[] = $result;
+            return false;
+        }
+
+        $this->dao->update(TABLE_CRON)->data($cron)->autoCheck()->where('id')->eq($cronID)->exec();
         return dao::isError() ? false : true;
+    }
+
+    /**
+     * Check cron rule.
+     * 
+     * @param  object $cron 
+     * @access public
+     * @return string
+     */
+    public function checkRule($cron)
+    {
+        if($cron->m === ''   or preg_match('/[^0-9\*\-\/,]/', $cron->m))       return sprintf($this->lang->cron->notice->errorRule, $this->lang->cron->m);
+        if($cron->h === ''   or preg_match('/[^0-9\*\-\/,]/', $cron->h))       return sprintf($this->lang->cron->notice->errorRule, $this->lang->cron->h);
+        if($cron->dom === '' or preg_match('/[^0-9\*\-\/,\?LWC]/', $cron->dom))return sprintf($this->lang->cron->notice->errorRule, $this->lang->cron->dom);
+        if($cron->mon === '' or preg_match('/[^0-9\*\-\/,]/', $cron->mon))     return sprintf($this->lang->cron->notice->errorRule, $this->lang->cron->mon);
+        if($cron->dow === '' or preg_match('/[^0-9\*\-\/,\?LC#]/', $cron->dow))return sprintf($this->lang->cron->notice->errorRule, $this->lang->cron->dow);
+        if(empty($cron->command))return sprintf($this->lang->error->notempty, $this->lang->cron->command);
+        return null;
     }
 
     public function markCronStatus($status, $configID = 0)

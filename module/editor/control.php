@@ -3,7 +3,7 @@
  * The control file of editor of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     editor
  * @version     $Id$
@@ -58,6 +58,7 @@ class editor extends control
         if($filePath)
         {
             $filePath = helper::safe64Decode($filePath);
+            if(strpos(strtolower($filePath), strtolower($this->app->getBasePath())) !== 0) die($this->lang->editor->editFileError);
             if($action == 'extendOther' and file_exists($filePath))
             {
                 $this->view->showContent = htmlspecialchars(file_get_contents($filePath));
@@ -142,6 +143,7 @@ class editor extends control
         if($filePath and $_POST)
         {
             $filePath = helper::safe64Decode($filePath);
+            if(strpos(strtolower($filePath), strtolower($this->app->getBasePath())) !== 0) die($this->lang->editor->editFileError);
             if($action != 'edit' and $action != 'newPage') $filePath = $this->editor->getSavePath($filePath, $action);
             if($action != 'edit' and $action != 'newPage' and file_exists($filePath) and !$this->post->override) die(js::error($this->lang->editor->repeatFile));
             $this->editor->save($filePath);

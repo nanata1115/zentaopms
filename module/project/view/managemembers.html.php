@@ -3,7 +3,7 @@
  * The link user view of project module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     project
  * @version     $Id: managemembers.html.php 4662 2013-04-18 02:34:33Z chencongzhi520@gmail.com $
@@ -12,19 +12,25 @@
 ?>
 <?php include '../../common/view/header.html.php';?>
 <?php js::set('projectID', $project->id);?>
+<?php js::set('team2Import', $team2Import);?>
 <?php js::set('roles', $roles);?>
-<div>
-  <div id='titlebar'>
-    <div class='heading'>
-      <span class='prefix'><?php echo html::icon($lang->icons['team']);?></span>
-      <strong> <?php echo $lang->project->manageMembers;?></strong>
-      <small class='text-muted'><i class='icon icon-cogs'></i></small>
-    </div>
-    <div class='actions'>
-      <button class='btn' id='itBtn'><?php echo html::icon($lang->icons['copy']) . ' ' . $lang->project->copyTeam;?></button>
+<div id='mainMenu' class='clearfix'>
+  <div class='btn-toolbar pull-left'>
+    <span class='btn btn-link btn-active-text'>
+      <?php echo html::a($this->createLink('project', 'managemembers', "projectID={$project->id}"), "<span class='text'> {$lang->project->manageMembers}</span>");?>
+    </span>
+    <div class='input-group space w-200px'>
+      <span class='input-group-addon'><?php echo $lang->project->selectDept?></span>
+      <?php echo html::select('dept', $depts, $dept, "class='form-control chosen' onchange='setDeptUsers(this)' data-placeholder='{$lang->project->selectDeptTitle}'");?>
+      <?php if(count($teams2Import) != 1):?>
+      <span class='input-group-addon'><?php echo $lang->project->copyTeam?></span>
+      <?php echo html::select('project', $teams2Import, $team2Import, "class='form-control chosen' onchange='choseTeam2Copy(this)' data-placeholder='{$lang->project->copyTeamTitle}'");?>
+      <?php endif;?>
     </div>
   </div>
-  <form class='form-condensed' method='post'>
+</div>
+<div id='mainContent' class='main-content'>
+  <form class='main-form' method='post' id='teamForm'>
     <table class='table table-form'>
       <thead>
         <tr class='text-center'>
@@ -32,91 +38,110 @@
           <th><?php echo $lang->team->role;?></th>
           <th class='w-100px'><?php echo $lang->team->days;?></th>
           <th class='w-100px'><?php echo $lang->team->hours;?></th>
+          <th class='w-100px'><?php echo $lang->team->limited;?></th>
+          <th class="w-90px"> <?php echo $lang->actions;?></th>
         </tr>
       </thead>
-      <?php $i = 1; $memberCount = 0;?>
-      <?php foreach($currentMembers as $member):?>
-      <?php if(!isset($users[$member->account])) continue; $realname = substr($users[$member->account], 2);?>
-      <?php unset($users[$member->account]);?>
-      <tr>
-        <td><input type='text' name='realnames[]' id='account<?php echo $i;?>' value='<?php echo $realname;?>' readonly class='form-control' /></td>
-        <td><input type='text' name='roles[]'     id='role<?php echo $i;?>'    value='<?php echo $member->role;?>' class='form-control' /></td>
-        <td><input type='text' name='days[] '     id='days<?php echo $i;?>'    value='<?php echo $member->days;?>' class='form-control' /></td>
-        <td>
-          <input type='text'   name='hours[]' id='hours<?php echo $i;?>' value='<?php echo $member->hours;?>' class='form-control' />
-          <input type='hidden' name='modes[]' value='update' />
-          <input type='hidden' name='accounts[]' value='<?php echo $member->account;?>' />
-        </td>
-      </tr>
-      <?php $i ++; $memberCount ++;?>
-      <?php endforeach;?>
+      <tbody>
+        <?php $i = 0; $memberCount = 0;?>
+        <?php foreach($currentMembers as $member):?>
+        <?php if(!isset($users[$member->account])) continue;?>
+        <?php unset($users[$member->account]);?>
+        <tr>
+          <td><input type='text' name='realnames[]' id='account<?php echo $i;?>' value='<?php echo $member->realname;?>' readonly class='form-control' /></td>
+          <td><input type='text' name='roles[]'     id='role<?php echo $i;?>'    value='<?php echo $member->role;?>' class='form-control' /></td>
+          <td><input type='text' name='days[] '     id='days<?php echo $i;?>'    value='<?php echo $member->days;?>' class='form-control' /></td>
+          <td>
+            <input type='text'   name='hours[]' id='hours<?php echo $i;?>' value='<?php echo $member->hours;?>' class='form-control' />
+            <input type='hidden' name='modes[]' value='update' />
+            <input type='hidden' name='accounts[]' value='<?php echo $member->account;?>' />
+          </td>
+          <td><?php echo html::radio("limited[$i]", $lang->team->limitedList, $member->limited);?></td>
+          <td class='c-actions'>
+            <a href='javascript:;' onclick='addItem(this)' class='btn btn-link'><i class='icon-plus'></i></a>
+          </td>
+        </tr>
+        <?php $i ++; $memberCount ++;?>
+        <?php endforeach;?>
 
-      <?php foreach($members2Import as $member2Import):?>
-      <tr>
-        <td><?php echo html::select("accounts[$memberCount]", $users, $member2Import->account, "class='select-2 chosen' onchange='setRole(this.value, $i)'");?></td>
-        <td><input type='text' name='roles[]' id='role<?php echo $i;?>' class='form-control' value='<?php echo $member2Import->role;?>' /></td>
-        <td><input type='text' name='days[]'  id='days<?php echo $i;?>' class='form-control' value='<?php echo $project->days?>'/></td>
-        <td>
-          <input type='text'   name='hours[]' id='hours<?php echo $i;?>' class='form-control' value='<?php echo $member2Import->hours;?>' />
-          <input type='hidden' name='modes[]' value='create' />
-        </td>
-      </tr>
-      <?php $i ++; $memberCount ++;?>
-      <?php endforeach;?>
+        <?php foreach($members2Import as $member2Import):?>
+        <tr class='addedItem'>
+          <td><?php echo html::select("accounts[]", $users, $member2Import->account, "class='form-control chosen' onchange='setRole(this.value, $i)'");?></td>
+          <td><input type='text' name='roles[]' id='role<?php echo $i;?>' class='form-control' value='<?php echo $member2Import->role;?>' /></td>
+          <td><input type='text' name='days[]'  id='days<?php echo $i;?>' class='form-control' value='<?php echo $project->days?>'/></td>
+          <td>
+            <input type='text'   name='hours[]' id='hours<?php echo $i;?>' class='form-control' value='<?php echo $member2Import->hours;?>' />
+            <input type='hidden' name='modes[]' value='create' />
+          </td>
+          <td><?php echo html::radio("limited[$i]", $lang->team->limitedList, 'no');?></td>
+          <td class='c-actions'>
+            <a href='javascript:;' onclick='addItem(this)' class='btn btn-link'><i class='icon-plus'></i></a>
+            <a href='javascript:;' onclick='deleteItem(this)' class='btn btn-link'><i class='icon icon-close'></i></a>
+          </td>
+        </tr>
+        <?php $i ++; $memberCount ++;?>
+        <?php endforeach;?>
 
-      <?php
-      $count = count($users) - 1;
-      if($count > PROJECTMODEL::LINK_MEMBERS_ONE_TIME) $count = PROJECTMODEL::LINK_MEMBERS_ONE_TIME;
-      ?>
+        <?php foreach($deptUsers as $deptAccount => $userName):?>
+        <?php if(!isset($users[$deptAccount])) continue;?>
+        <tr class='addedItem'>
+          <td><?php echo html::select("accounts[]", $users, $deptAccount, "class='form-control chosen' onchange='setRole(this.value, $i)'");?></td>
+          <td><input type='text' name='roles[]' id='role<?php echo $i;?>' class='form-control' value='<?php echo $roles[$deptAccount]?>'/></td>
+          <td><input type='text' name='days[]'  id='days<?php echo $i;?>' class='form-control' value='<?php echo $project->days?>'/></td>
+          <td>
+            <input type='text'   name='hours[]' id='hours<?php echo $i;?>' class='form-control' value='<?php echo $config->project->defaultWorkhours?>' />
+            <input type='hidden' name='modes[]' value='create' />
+          </td>
+          <td><?php echo html::radio("limited[$i]", $lang->team->limitedList, 'no');?></td>
+          <td class='c-actions'>
+            <a href='javascript:;' onclick='addItem(this)' class='btn btn-link'><i class='icon-plus'></i></a>
+            <a href='javascript:;' onclick='deleteItem(this)' class='btn btn-link'><i class='icon icon-close'></i></a>
+          </td>
+        </tr>
+        <?php unset($users[$deptAccount]);?>
+        <?php $i ++; $memberCount ++;?>
+        <?php endforeach;?>
 
-      <?php for($j = 0; $j < $count; $j ++):?>
-      <tr>
-        <td><?php echo html::select("accounts[$memberCount]", $users, '', "class='select-2 chosen' onchange='setRole(this.value, $i)'");?></td>
-        <td><input type='text' name='roles[]' id='role<?php echo ($i);?>' class='form-control' /></td>
-        <td><input type='text' name='days[]'  id='days<?php echo  ($i);?>' class='form-control' value='<?php echo $project->days?>'/></td>
-        <td>
-          <input type='text'   name='hours[]' id='hours<?php echo ($i);?>' class='form-control' value='7' />
-          <input type='hidden' name='modes[]' value='create' />
-        </td>
-      </tr>
-      <?php $i ++; $memberCount ++;?>
-      <?php endfor;?>
-      <tr>
-        <td colspan='4' class='text-center'>
-          <?php echo html::submitButton() ?>
-        </td>
-      </tr>
+        <?php for($j = 0; $j < 5; $j ++):?>
+        <tr class='addedItem'>
+          <td><?php echo html::select("accounts[]", $users, '', "class='form-control chosen' onchange='setRole(this.value, $i)'");?></td>
+          <td><input type='text' name='roles[]' id='role<?php  echo ($i);?>' class='form-control' /></td>
+          <td><input type='text' name='days[]'  id='days<?php  echo ($i);?>' class='form-control' value='<?php echo $project->days?>'/></td>
+          <td>
+            <input type='text'   name='hours[]' id='hours<?php echo ($i);?>' class='form-control' value='<?php echo $config->project->defaultWorkhours?>' />
+            <input type='hidden' name='modes[]' value='create' />
+          </td>
+          <td><?php echo html::radio("limited[$i]", $lang->team->limitedList, 'no');?></td>
+          <td class='c-actions'>
+            <a href='javascript:;' onclick='addItem(this)' class='btn btn-link'><i class='icon-plus'></i></a>
+            <a href='javascript:;' onclick='deleteItem(this)' class='btn btn-link'><i class='icon icon-close'></i></a>
+          </td>
+        </tr>
+        <?php $i ++; $memberCount ++;?>
+        <?php endfor;?>
+      </tbody>
+      <tfoot><tr><td colspan='6' class='text-center form-actions'><?php echo html::submitButton() . ' ' . html::backButton(); ?></td></tr></tfoot>
     </table>
+    <?php js::set('i', $i);?>
   </form>
 </div>
-<div class='modal fade' id='importTeamModal'>
-  <div class='modal-dialog mw-700px'>
-    <div class='modal-header'>
-      <button type='button' class='close' data-dismiss='modal'>&times;</button>
-      <h4 class='modal-title' id='myModalLabel'><?php echo $lang->project->copyTeamTitle;?></h4>
-    </div>
-    <div class='modal-body'>
-      <?php if(count($teams2Import) == 1):?>
-      <div class='alert alert-warning'>
-        <i class='icon-info-sign'></i>
-        <div class='content'>
-          <p><?php echo $lang->project->copyNoProject;?></p>
-        </div>
-      </div>
-      <?php else:?>
-      <div id='importTeams' class='row'>
-      <?php foreach ($teams2Import as $id => $name):?>
-      <?php if(empty($id)):?>
-        <?php if($team2Import != 0):?>
-        <div class='col-md-4 col-sm-6'><a href='javascript:;' data-id='' class='cancel'><?php echo html::icon($lang->icons['cancel']) . ' ' . $lang->project->cancelCopy;?></a></div>
-        <?php endif;?>
-      <?php else: ?>
-        <div class='col-md-4 col-sm-6'><a href='javascript:;' data-id='<?php echo $id;?>' class='nobr <?php echo ($team2Import == $id) ? ' active' : '';?>'><?php echo html::icon($lang->icons['team'], 'text-muted') . ' ' . $name;?></a></div>
-      <?php endif; ?>
-      <?php endforeach;?>
-      </div>
-      <?php endif;?>
-    </div>
-  </div>
+<div>
+  <?php $i = '%i%';?>
+  <table class='hidden'>
+    <tr id='addItem' class='hidden'>
+      <td><?php echo html::select("accounts[]", $users, '', "class='form-control' onchange='setRole(this.value, $i)'");?></td>
+      <td><input type='text' name='roles[]' id='role<?php  echo ($i);?>' class='form-control' /></td>
+      <td><input type='text' name='days[]'  id='days<?php  echo ($i);?>' class='form-control' value='<?php echo $project->days?>'/></td>
+      <td>
+        <input type='text'   name='hours[]' id='hours<?php echo ($i);?>' class='form-control' value='<?php echo $config->project->defaultWorkhours?>' />
+        <input type='hidden' name='modes[]' value='create' />
+      </td>
+      <td><?php echo html::radio("limited[$i]", $lang->team->limitedList, $member->realname ? $member->limited : 'no');?></td>
+      <td class='c-actions'>
+        <a href='javascript:;' onclick='addItem(this)' class='btn btn-link'><i class='icon-plus'></i></a>
+        <a href='javascript:;' onclick='deleteItem(this)' class='btn btn-link'><i class='icon icon-close'></i></a>
+      </td>
+    </tr>
+  </table>
 </div>
 <?php include '../../common/view/footer.html.php';?>

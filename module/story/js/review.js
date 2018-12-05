@@ -1,10 +1,13 @@
 function switchShow(result)
 {
+    $('#priBox').hide();
+    $('#estimateBox').hide();
     if(result == 'reject')
     {
         $('#rejectedReasonBox').show();
         $('#preVersionBox').hide();
         $('#assignedTo').val('closed');
+        $('#assignedTo').trigger("chosen:updated");
     }
     else if(result == 'revert')
     {
@@ -13,15 +16,22 @@ function switchShow(result)
         $('#duplicateStoryBox').hide();
         $('#childStoriesBox').hide();
         $('#assignedTo').val(assignedTo);
+        $('#assignedTo').trigger("chosen:updated");
     }
     else
     {
+        if(result == 'pass')
+        {
+            $('#priBox').show();
+            $('#estimateBox').show();
+        }
         $('#preVersionBox').hide();
         $('#rejectedReasonBox').hide();
         $('#duplicateStoryBox').hide();
         $('#childStoriesBox').hide();
         $('#rejectedReasonBox').hide();
         $('#assignedTo').val(assignedTo);
+        $('#assignedTo').trigger("chosen:updated");
     }
 }
 

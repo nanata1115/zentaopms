@@ -1,49 +1,35 @@
-function loadModule(lib)
-{
-    if(lib == 'product')
-    {
-        type = 'productdoc';
-        root = 0;
-    }
-    else if(lib == 'project')
-    {
-        type = 'projectdoc';
-        root = 0;
-    }
-    else
-    {
-        type = 'customdoc';
-        root = lib;
-    }
-
-    $.get(createLink('tree', 'ajaxGetOptionMenu', 'rootID=' + root + '&viewType=' + type), function(data)
-    {
-        $('#module').parents('td').html(data);
-        $("#module").removeAttr('onchange');
-        $("#module").chosen(defaultChosenOptions);
-    });
-}
-
-function changeByLib(lib)
-{
-    if(lib == 'product')
-    {
-        $('#product').parents('tr').show();
-        $('#project').parents('tr').hide();
-    }
-    else if(lib == 'project')
-    {
-        $('#product').parents('tr').show();
-        $('#project').parents('tr').show();
-    }
-    else
-    {
-        $('#product').parents('tr').hide();
-        $('#project').parents('tr').hide();
-    }
-}
-
 $(function()
 {
-    changeByLib($('#lib').val());
+    toggleAcl($('input[name="acl"]:checked').val());
+    $('input[name="type"]').change(function()
+    {
+        var type = $(this).val();
+        if(type == 'text')
+        {
+            $('#contentBox').removeClass('hidden');
+            $('#urlBox').addClass('hidden');
+        }
+        else if(type == 'url')
+        {
+            $('#contentBox').addClass('hidden');
+            $('#urlBox').removeClass('hidden');
+        }
+    });
+
+    // hide #module chosen dropdown on #lib dropdown show
+    $('#lib').on('chosen:showing_dropdown', function()
+    {
+        $('#module').trigger('chosen:close');
+    });
 })
+
+function loadDocModule(libID)
+{
+    link = createLink('doc', 'ajaxGetChild', 'libID=' + libID);
+    $.post(link, function(data)
+    {
+        $('#module').replaceWith(data);
+        $('#module_chosen').remove();
+        $('#module').chosen();
+    });
+}

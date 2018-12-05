@@ -3,7 +3,7 @@
  * The edit view of tree module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     tree
  * @version     $Id: edit.html.php 4795 2013-06-04 05:59:58Z zhujinyonging@gmail.com $
@@ -13,18 +13,17 @@
 <?php
 $webRoot = $this->app->getWebRoot();
 $jsRoot  = $webRoot . "js/";
+js::set('type', $type);
 ?>
-<?php include '../../common/view/chosen.html.php'?>
+<?php include '../../common/view/chosen.html.php';?>
 <div class='modal-dialog w-500px'>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"><i class="icon icon-close"></i></button>
+    <h4 class="modal-title"><strong><?php echo $lang->tree->edit;?></strong></h4>
+  </div>
   <div class='modal-body'>
-    <div id='titlebar'>
-      <div class='heading'>
-        <span class='prefix'><?php echo html::icon($lang->icons['tree']);?></span>
-        <strong><small class='text-muted'><?php echo html::icon($lang->icons['edit']);?></small> <?php echo $lang->tree->edit;?></strong>
-      </div>
-    </div>
-    <form action="<?php echo inlink('edit', 'module=' . $module->id .'&type=' .$type);?>" target='hiddenwin' class='form-condensed' method='post' class='mt-10px' id='dataform'>
-      <table class='table table-form'> 
+    <form action="<?php echo inlink('edit', 'module=' . $module->id .'&type=' .$type);?>" target='hiddenwin' method='post' class='mt-10px' id='dataform'>
+      <table class='table table-form'>
         <?php if($showProduct):?>
         <tr>
           <th class='w-80px'><?php echo $lang->tree->product;?></th>
@@ -32,20 +31,32 @@ $jsRoot  = $webRoot . "js/";
         </tr>
         <?php endif;?>
         <?php $hidden = ($type != 'story' and $module->type == 'story');?>
+        <?php if($type == 'doc'):?>
+        <tr>
+          <th class='w-80px'><?php echo $lang->doc->lib;?></th>
+          <td><?php echo html::select('root', $libs, $module->root, "class='form-control chosen' onchange=loadDocModule(this.value)");?></td>
+        </tr>
+        <?php endif;?>
+        <?php if($module->type != 'line'):?>
         <tr <?php if($hidden) echo "style='display:none'";?>>
-          <th class='w-80px'><?php echo $lang->tree->parent;?></th>
+          <th class='w-80px'><?php echo ($type == 'doc' || $type == 'feedback') ? $lang->tree->parentCate : $lang->tree->parent;?></th>
           <td><?php echo html::select('parent', $optionMenu, $module->parent, "class='form-control chosen'");?></td>
         </tr>
+        <?php endif;?>
         <tr <?php if($hidden) echo "style='display:none'";?>>
-          <th class='w-80px'><?php echo $lang->tree->name;?></th>
-          <td><?php echo html::input('name', $module->name, "class='form-control'");?></td>
+          <th class='w-80px'><?php echo ($type == 'doc' || $type == 'feedback') ? $lang->tree->cate : $lang->tree->name;?></th>
+          <td><?php echo html::input('name', $module->name, "class='form-control' autocomplete='off'");?></td>
         </tr>
         <?php if($type == 'bug'):?>
         <tr>
           <th class='w-80px'><?php echo $lang->tree->owner;?></th>
           <td><?php echo html::select('owner', $users, $module->owner, "class='form-control chosen'", true);?></td>
-        </tr>  
+        </tr>
         <?php endif;?>
+        <tr>
+          <th><?php echo $lang->tree->short;?></th>
+          <td><?php echo html::input('short', $module->short, "class='form-control' autocomplete='off'");?></td>
+        </tr>
         <tr>
           <td colspan='2' class='text-center'>
           <?php echo html::submitButton();?>
@@ -60,7 +71,7 @@ var currentRoot   = <?php echo $module->root;?>;
 var currentParent = <?php echo $module->parent;?>;
 function getProductModules(productID)
 {
-    $.get(createLink('tree', 'ajaxGetOptionMenu', 'rootID=' + productID + '&viewType=story&rootModuleID=0&returnType=json'), function(data)
+    $.get(createLink('tree', 'ajaxGetOptionMenu', 'rootID=' + productID + '&viewType=story&branch=0&rootModuleID=0&returnType=json'), function(data)
     {
         var newOption = '';
         for(i in data) newOption += '<option value="' + i + '">' + data[i] + '</option>';
@@ -71,6 +82,7 @@ function getProductModules(productID)
 }
 $(function()
 {
+    if(type == 'doc') return;
     $('#root').change(function()
     {
         if($(this).val() == currentRoot) return true;
@@ -81,5 +93,23 @@ $(function()
         }
         getProductModules($(this).val());
     })
+})
+function loadDocModule(libID)
+{
+    var link = createLink('doc', 'ajaxGetChild', 'libID=' + libID + '&type=parent');
+    $.post(link, function(data)
+    {
+        $('#parent').empty().append($(data).children()).trigger('chosen:updated');
+    });
+}
+$(function()
+{
+    $('#dataform .chosen').chosen();
+
+    // hide #parent chosen dropdown on root dropdown show
+    $('#root').on('chosen:showing_dropdown', function()
+    {
+        $('#parent').trigger('chosen:close');
+    });
 })
 </script>

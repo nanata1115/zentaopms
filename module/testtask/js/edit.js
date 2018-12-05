@@ -21,6 +21,11 @@ function loadProjectBuilds(projectID)
 {
     selectedBuild = $('#build').val();
     if(!selectedBuild) selectedBuild = 0;
-    link = createLink('build', 'ajaxGetProjectBuilds', 'projectID=' + projectID + '&productID=' + $('#product').val() + '&varName=testTaskBuild&builds=' + selectedBuild);
-    $('#buildBox').load(link, function(){$('#build').chosen(defaultChosenOptions);});
+    link = createLink('build', 'ajaxGetProjectBuilds', 'projectID=' + projectID + '&productID=' + $('#product').val() + '&varName=testTaskBuild&build=' + selectedBuild);
+    $('#buildBox').load(link, function(){$('#build').chosen();});
 }
+
+$(function()
+{
+    adjustPriBoxWidth();
+})

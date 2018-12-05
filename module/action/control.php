@@ -3,7 +3,7 @@
  * The control file of action module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     action
  * @version     $Id$
@@ -105,6 +105,27 @@ class action extends control
     }
 
     /**
+     * Comment. 
+     * 
+     * @param  string $objectType 
+     * @param  int    $objectID 
+     * @access public
+     * @return void
+     */
+    public function comment($objectType, $objectID)
+    {
+        $actionID = $this->action->create($objectType, $objectID, 'Commented', $this->post->comment);
+        if(defined('RUN_MODE') && RUN_MODE == 'api')
+        {
+            die(array('status' => 'success', 'data' => $actionID));
+        }
+        else
+        {
+            die(js::reload('parent'));
+        }
+    }
+
+    /**
      * Edit comment of a action.
      * 
      * @param  int    $actionID 
@@ -113,7 +134,15 @@ class action extends control
      */
     public function editComment($actionID)
     {
-        if(trim(strip_tags($this->post->lastComment, '<img>'))) $this->action->updateComment($actionID);
-        die(js::locate($this->server->http_referer, 'parent'));
+        if(trim(strip_tags($this->post->lastComment, '<img>')))
+        {
+            $this->action->updateComment($actionID);
+        }
+        else
+        {
+            dao::$errors['submit'][] = $this->lang->action->historyEdit;
+            $this->send(array('result' => 'fail', 'message' => dao::getError()));
+        }
+        $this->send(array('result' => 'success', 'locate' => 'reload'));
     }
 }

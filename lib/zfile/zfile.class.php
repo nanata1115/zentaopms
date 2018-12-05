@@ -3,7 +3,7 @@
  * The zfile library of zentaopms.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     Zfile
  * @version     $Id: zfile.class.php 2605 2013-01-09 07:22:58Z wwccss $
@@ -67,6 +67,7 @@ class zfile
      */
     public function removeDir($dir)
     {
+        if(empty($dir)) return true;
         $dir = realpath($dir) . '/';
         if($dir == '/') return false;
 
@@ -190,5 +191,41 @@ class zfile
     public function rename($from, $to)
     {
         return rename($from, $to);
+    }
+
+    /**
+     * Get file size.
+     * 
+     * @param  string    $file 
+     * @access public
+     * @return int
+     */
+    public function getFileSize($file)
+    {
+        return abs(filesize($file));
+    }
+
+    /**
+     * Get directory size.
+     * 
+     * @param  string    $dir
+     * @access public
+     * @return int 
+     */
+    public function getDirSize($dir)
+    {
+        $size = 0;
+        foreach(glob("$dir/*") as $file)
+        {
+            if(is_dir($file))
+            {
+                $size += $this->getDirSize($file);
+            }
+            else
+            {
+                $size += $this->getFileSize($file);
+            }
+        }
+        return $size;
     }
 }

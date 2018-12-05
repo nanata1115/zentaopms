@@ -3,7 +3,7 @@
  * The group module zh-cn file of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     group
  * @version     $Id: zh-cn.php 4719 2013-05-03 02:20:28Z chencongzhi520@gmail.com $
@@ -19,21 +19,21 @@ $lang->group->manageView         = '视图维护';
 $lang->group->managePriv         = '权限维护';
 $lang->group->managePrivByGroup  = '权限维护';
 $lang->group->managePrivByModule = '按模块分配权限';
-$lang->group->byModuleTips       = '<span class="tips">（可以按住shift或者control键进行多选）</span>';
+$lang->group->byModuleTips       = '<span class="tips">（可以按住Shift或者Ctrl键进行多选）</span>';
 $lang->group->manageMember       = '成员维护';
-$lang->group->linkMember         = '关联用户';
-$lang->group->unlinkMember       = '移除用户';
 $lang->group->confirmDelete      = '您确定删除该用户分组吗？';
 $lang->group->successSaved       = '成功保存';
 $lang->group->errorNotSaved      = '没有保存，请确认选择了权限数据。';
-$lang->group->viewList           = '限制访问视图';
-$lang->group->productList        = '限制访问' . $lang->productCommon;
-$lang->group->projectList        = '限制访问' . $lang->projectCommon;
-$lang->group->noticeVisit        = '空代访问没有访问限制';
+$lang->group->viewList           = '允许访问视图';
+$lang->group->productList        = '允许访问' . $lang->productCommon;
+$lang->group->projectList        = '允许访问' . $lang->projectCommon;
+$lang->group->noticeVisit        = '空代表访问没有访问限制';
 
 $lang->group->id       = '编号';
 $lang->group->name     = '分组名称';
 $lang->group->desc     = '分组描述';
+$lang->group->role     = '角色';
+$lang->group->acl      = '权限';
 $lang->group->users    = '用户列表';
 $lang->group->module   = '模块';
 $lang->group->method   = '方法';
@@ -48,6 +48,22 @@ $lang->group->copyOptions['copyPriv'] = '复制权限';
 $lang->group->copyOptions['copyUser'] = '复制用户';
 
 $lang->group->versions['']          = '修改历史';
+$lang->group->versions['10_6']      = '禅道10.6';
+$lang->group->versions['10_1']      = '禅道10.1';
+$lang->group->versions['10_0_alpha']= '禅道10.0.alpha';
+$lang->group->versions['9_8']       = '禅道9.8';
+$lang->group->versions['9_6']       = '禅道9.6';
+$lang->group->versions['9_5']       = '禅道9.5';
+$lang->group->versions['9_2']       = '禅道9.2';
+$lang->group->versions['9_1']       = '禅道9.1';
+$lang->group->versions['9_0']       = '禅道9.0';
+$lang->group->versions['8_4']       = '禅道8.4';
+$lang->group->versions['8_3']       = '禅道8.3';
+$lang->group->versions['8_2_beta']  = '禅道8.2.beta';
+$lang->group->versions['8_0_1']     = '禅道8.0.1';
+$lang->group->versions['8_0']       = '禅道8.0';
+$lang->group->versions['7_4_beta']  = '禅道7.4.beta';
+$lang->group->versions['7_3']       = '禅道7.3';
 $lang->group->versions['7_2']       = '禅道7.2';
 $lang->group->versions['7_1']       = '禅道7.1';
 $lang->group->versions['6_4']       = '禅道6.4';

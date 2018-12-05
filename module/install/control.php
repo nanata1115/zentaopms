@@ -3,7 +3,7 @@
  * The control file of install currentModule of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     install
  * @version     $Id: control.php 4297 2013-01-27 07:51:45Z wwccss $
@@ -52,7 +52,7 @@ class install extends control
     public function license()
     {
         $this->view->title   = $this->lang->install->welcome;
-        $this->view->license = file_get_contents($this->app->getBasePath() . 'doc/LICENSE');
+        $this->view->license = $this->install->getLicense();
         $this->display();
     }
 
@@ -68,15 +68,29 @@ class install extends control
         $this->view->phpVersion     = $this->install->getPhpVersion();
         $this->view->phpResult      = $this->install->checkPHP();
         $this->view->pdoResult      = $this->install->checkPDO();
-        $this->view->sessionResult  = $this->install->checkSessionSavePath();
-        $this->view->sessionInfo    = $this->install->getSessionSavePath();
         $this->view->pdoMySQLResult = $this->install->checkPDOMySQL();
         $this->view->jsonResult     = $this->install->checkJSON();
+        $this->view->opensslResult  = $this->install->checkOpenssl();
+        $this->view->mbstringResult = $this->install->checkMbstring();
+        $this->view->zlibResult     = $this->install->checkZlib();
+        $this->view->curlResult     = $this->install->checkCurl();
+        $this->view->filterResult   = $this->install->checkFilter();
+        $this->view->iconvResult    = $this->install->checkIconv();
         $this->view->tmpRootInfo    = $this->install->getTmpRoot();
         $this->view->tmpRootResult  = $this->install->checkTmpRoot();
         $this->view->dataRootInfo   = $this->install->getDataRoot();
         $this->view->dataRootResult = $this->install->checkDataRoot();
         $this->view->iniInfo        = $this->install->getIniInfo();
+
+        $checkSession = ini_get('session.save_handler') == 'files';
+        $this->view->sessionResult = 'ok';
+        $this->view->checkSession  = $checkSession;
+        if($checkSession)
+        {
+            $this->view->sessionResult  = $this->install->checkSessionSavePath();
+            $this->view->sessionInfo    = $this->install->getSessionSavePath();
+        }
+
         $this->display();
     }
 
@@ -110,7 +124,6 @@ class install extends control
                 $this->view->lang      = $this->lang;
                 $this->view->config    = $this->config;
                 $this->view->title     = $this->lang->install->saveConfig;
-                $this->view->mysqldump = $this->install->getMySQLDump();
                 $this->display();
             }
             else
@@ -143,7 +156,10 @@ class install extends control
             if(dao::isError()) echo js::alert($this->lang->install->errorImportDemoData);
 
             $this->loadModel('setting')->updateVersion($this->config->version);
-            $this->loadModel('setting')->setItem('system.common.global.flow', 'full');
+            $this->loadModel('setting')->setItem('system.common.global.flow', $this->post->flow);
+            $this->loadModel('setting')->setItem('system.common.safe.mode', '1');
+            $this->loadModel('setting')->setItem('system.common.safe.changeWeak', '1');
+            $this->loadModel('setting')->setItem('system.common.global.cron', 1);
             die(js::locate(inlink('step5'), 'parent'));
         }
 

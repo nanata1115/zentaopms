@@ -3,7 +3,7 @@
  * The control file of company module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     company
  * @version     $Id: control.php 5100 2013-07-12 00:25:23Z zhujinyonging@gmail.com $
@@ -17,9 +17,9 @@ class company extends control
      * @access public
      * @return void
      */
-    public function __construct()
+    public function __construct($moduleName = '', $methodName = '')
     {
-        parent::__construct();
+        parent::__construct($moduleName, $methodName);
         $this->loadModel('dept');
     }
 
@@ -65,41 +65,21 @@ class company extends control
         $sort = $this->loadModel('common')->appendOrder($orderBy);
 
         /* Build the search form. */
-        $queryID = $type == 'bydept' ? 0 : (int)$param;
-        $this->config->company->browse->search['actionURL'] = $this->createLink('company', 'browse', "param=myQueryID&type=bysearch");
-        $this->config->company->browse->search['queryID']   = $queryID;
-        $this->config->company->browse->search['params']['dept']['values'] = array('' => '') + $this->dept->getOptionMenu();
-        $this->loadModel('search')->setSearchParams($this->config->company->browse->search);
+        $queryID   = $type == 'bydept' ? 0 : (int)$param;
+        $actionURL = $this->createLink('company', 'browse', "param=myQueryID&type=bysearch");
+        $this->company->buildSearchForm($queryID, $actionURL);
 
-        if($type == 'bydept')
-        {
-            $childDeptIds = $this->dept->getAllChildID($deptID);
-            $users        = $this->dept->getUsers($childDeptIds, $pager, $sort);
-        }
-        else
-        {
-            if($queryID)
-            {
-                $query = $this->search->getQuery($queryID);
-                if($query)
-                {
-                    $this->session->set('userQuery', $query->sql);
-                    $this->session->set('userForm', $query->form);
-                }
-                else
-                {
-                    $this->session->set('userQuery', ' 1 = 1');
-                }
-            }
-            $users = $this->loadModel('user')->getByQuery($this->session->userQuery, $pager, $sort);
-        }
+        /* Get users. */
+        $users = $this->company->getUsers($type, $queryID, $deptID, $sort, $pager);
 
+        /* Assign. */
         $this->view->title       = $this->lang->company->index . $this->lang->colon . $this->lang->dept->common;
         $this->view->position[]  = $this->lang->dept->common;
         $this->view->users       = $users;
         $this->view->searchForm  = $this->fetch('search', 'buildForm', $this->config->company->browse->search);
         $this->view->deptTree    = $this->dept->getTreeMenu($rooteDeptID = 0, array('deptModel', 'createMemberLink'));
         $this->view->parentDepts = $this->dept->getParents($deptID);
+        $this->view->dept        = $this->dept->getById($deptID);
         $this->view->orderBy     = $orderBy;
         $this->view->deptID      = $deptID;
         $this->view->pager       = $pager;
@@ -129,6 +109,7 @@ class company extends control
             die(js::reload('parent.parent'));
         }
 
+        $this->company->setMenu();
         $title      = $this->lang->company->common . $this->lang->colon . $this->lang->company->edit;
         $position[] = $this->lang->company->edit;
         $this->view->title     = $title;
@@ -164,7 +145,7 @@ class company extends control
      * @access public
      * @return void
      */
-    public function dynamic($browseType = 'today', $param = '', $orderBy = 'date_desc', $recTotal = 0, $recPerPage = 20, $pageID = 1)
+    public function dynamic($browseType = 'today', $param = '', $recTotal = 0, $date = '', $direction = 'next')
     {
         $this->company->setMenu();
         $this->app->loadLang('user');
@@ -186,10 +167,11 @@ class company extends control
 
         /* Set the pager. */
         $this->app->loadClass('pager', $static = true);
-        $pager = pager::init($recTotal, $recPerPage, $pageID);
+        $pager = new pager($recTotal, $recPerPage = 50, $pageID = 1);
 
         /* Append id for secend sort. */
-        $sort = $this->loadModel('common')->appendOrder($orderBy);
+        $orderBy = $direction == 'next' ? 'date_desc' : 'date_asc';
+        $sort    = $this->loadModel('common')->appendOrder($orderBy);
 
         /* Set the user and type. */
         $account = $browseType == 'account' ? $param : 'all';
@@ -197,20 +179,21 @@ class company extends control
         $project = $browseType == 'project' ? $param : 'all';
         $period  = ($browseType == 'account' or $browseType == 'product' or $browseType == 'project') ? 'all'  : $browseType;
         $queryID = ($browseType == 'bysearch') ? (int)$param : 0;
+        $date    = empty($date) ? '' : date('Y-m-d', $date);
 
         /* Get products' list.*/
         $products = $this->loadModel('product')->getPairs('nocode');
-        $products = array($this->lang->product->select) + $products;
+        $products = array($this->lang->company->product) + $products;
         $this->view->products = $products;
 
         /* Get projects' list.*/
         $projects = $this->loadModel('project')->getPairs('nocode');
-        $projects = array($this->lang->project->select) + $projects;
+        $projects = array($this->lang->company->project) + $projects;
         $this->view->projects = $projects; 
 
         /* Get users.*/
-        $users = $this->loadModel('user')->getPairs('nodeleted|noclosed');
-        $users[''] = $this->lang->user->select;
+        $users = $this->loadModel('user')->getPairs('noclosed|nodeleted|noletter');
+        $users[''] = $this->lang->company->user;
         $this->view->users    = $users; 
 
         /* The header and position. */
@@ -220,11 +203,11 @@ class company extends control
         /* Get actions. */
         if($browseType != 'bysearch') 
         {
-            $actions = $this->action->getDynamic($account, $period, $sort, $pager, $product, $project);
+            $actions = $this->action->getDynamic($account, $period, $sort, $pager, $product, $project, $date, $direction);
         }
         else
         {
-            $actions = $this->action->getDynamicBySearch($products, $projects, $queryID, $sort, $pager); 
+            $actions = $this->action->getDynamicBySearch($products, $projects, $queryID, $sort, $pager, $date, $direction); 
         }
 
         /* Build search form. */
@@ -235,8 +218,15 @@ class company extends control
         ksort($products);
         $projects['all'] = $this->lang->project->allProject;
         $products['all'] = $this->lang->product->allProduct;
+
+        foreach($this->lang->action->search->label as $action => $name)
+        {
+            if($action) $this->lang->action->search->label[$action] .= " [ $action ]";
+        }
+
         $this->config->company->dynamic->search['actionURL'] = $this->createLink('company', 'dynamic', "browseType=bysearch&param=myQueryID");
         $this->config->company->dynamic->search['queryID']   = $queryID;
+        $this->config->company->dynamic->search['params']['action']['values']  = $this->lang->action->search->label;
         $this->config->company->dynamic->search['params']['project']['values'] = $projects;
         $this->config->company->dynamic->search['params']['product']['values'] = $products; 
         $this->config->company->dynamic->search['params']['actor']['values']   = $users; 
@@ -248,10 +238,11 @@ class company extends control
         $this->view->product    = $product;
         $this->view->project    = $project;
         $this->view->queryID    = $queryID; 
-        $this->view->actions    = $actions;
         $this->view->orderBy    = $orderBy;
         $this->view->pager      = $pager;
         $this->view->param      = $param;
+        $this->view->dateGroups = $this->action->buildDateGroup($actions, $direction);
+        $this->view->direction  = $direction;
         $this->display();
     }
 }

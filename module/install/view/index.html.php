@@ -3,7 +3,7 @@
  * The html template file of index method of install module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     ZenTaoPMS
  * @version     $Id: index.html.php 4129 2013-01-18 01:58:14Z wwccss $
@@ -33,43 +33,26 @@
         <tr>
           <td class=''><?php echo nl2br(sprintf($lang->install->links, $config->version));?></td>
           <td class='w-p25'>
+            <?php if($this->app->clientLang != 'en'):?>
             <img src="<?php echo $this->app->getWebRoot() . 'theme/default/images/main/weixin.jpg'?>" width='200' height='200'>
+            <?php endif;?>
           </td>
         </tr> 
         <tr>
           <td colspan='2'>
+            <h5><?php echo $lang->install->promotion?></h5>
             <div class='row'>
-              <h5><?php echo $lang->install->promotion?></h5>
-              <div class='col-md-4'>
-                <a class="card ad" href="http://www.chanzhi.org" target="_blank">
-                  <div class="img-wrapper" style="background-image:url(<?php echo $defaultTheme . 'images/main/chanzhi.png'?>)"><img src="<?php echo $defaultTheme . 'images/main/chanzhi.png'?>" alt=""></div>
-                  <strong class="card-heading"><?php echo $lang->install->chanzhi->name?></strong>
+              <?php foreach($lang->install->product as $product):?>
+              <div class='col-md-<?php echo ceil(12 / count($lang->install->product));?>'>
+                <a class="card ad" href="<?php echo $lang->install->{$product}->url;?>" target="_blank">
+                  <div class="img-wrapper" style="background-image:url(<?php echo $defaultTheme . $lang->install->{$product}->logo;?>)"><img src="<?php echo $defaultTheme . $lang->install->{$product}->logo;?>" alt=""></div>
                   <div class="card-reveal">
-                    <h5 class="card-heading"><?php echo $lang->install->chanzhi->name?></h5>
-                    <div class="card-content"><?php echo $lang->install->chanzhi->desc?></div>
+                    <h5 class="card-heading"><?php echo $lang->install->{$product}->name?></h5>
+                    <div class="card-content"><?php echo $lang->install->{$product}->desc?></div>
                   </div>
                 </a>
               </div>
-              <div class='col-md-4'>
-                <a class="card ad" href="http://www.ranzhico.com" target="_blank">
-                  <div class="img-wrapper" style="background-image:url(<?php echo $defaultTheme . 'images/main/ranzhi.png'?>)"><img src="<?php echo $defaultTheme . 'images/main/ranzhi.png'?>" alt=""></div>
-                  <strong class="card-heading"><?php echo $lang->install->ranzhi->name?></strong>
-                  <div class="card-reveal">
-                    <h5 class="card-heading"><?php echo $lang->install->ranzhi->name?></h5>
-                    <div class="card-content"><?php echo $lang->install->ranzhi->desc?></div>
-                  </div>
-                </a>
-              </div>
-              <div class='col-md-4'>
-                <a class="card ad" href="http://www.yidouio.com" target="_blank">
-                  <div class="img-wrapper" style="background-image:url(<?php echo $defaultTheme . 'images/main/yidou.png'?>)"><img src="<?php echo $defaultTheme . 'images/main/yidou.png'?>" alt=""></div>
-                  <strong class="card-heading"><?php echo $lang->install->yidou->name?></strong>
-                  <div class="card-reveal">
-                    <h5 class="card-heading"><?php echo $lang->install->yidou->name?></h5>
-                    <div class="card-content"><?php echo $lang->install->yidou->desc?></div>
-                  </div>
-                </a>
-              </div>
+              <?php endforeach;?>
             </div>
           </td>
         </tr>

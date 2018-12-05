@@ -1,43 +1,56 @@
-<div id='featurebar'>
-  <div class='heading'>
-    <?php echo "<span class='prefix'>" . html::icon($lang->icons['usecase']) . '</span><strong>' . $task->name . '</strong>';?>
+<div id='mainMenu' class='clearfix'>
+  <div id='sidebarHeader'>
+    <div class="title">
+      <?php
+      $this->app->loadLang('tree');
+      echo isset($moduleID) ? $moduleName : $this->lang->tree->all;
+      if(!empty($moduleID))
+      {
+          $removeLink = $browseType == 'bymodule' ? inlink('cases', "taskID=$taskID&browseType=$browseType&param=0&orderBy=$orderBy&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}") : 'javascript:removeCookieByKey("taskCaseModule")';
+          echo html::a($removeLink, "<i class='icon icon-sm icon-close'></i>", '', "class='text-muted'");
+      }
+      ?>
+    </div>
   </div>
-  <div class='nav'>
+  <div class='btn-toolbar pull-left'>
     <?php
-    echo "<li id='allTab'>" . html::a($this->inlink('cases', "taskID=$taskID&browseType=all&param=0"), $lang->testtask->allCases) . "</li>";
-    echo "<li id='assignedtomeTab'>" . html::a($this->inlink('cases', "taskID=$taskID&browseType=assignedtome&param=0"), $lang->testtask->assignedToMe) . "</li>";
+    $hasCasesPriv = common::hasPriv('testtask', 'cases');
+    $hasGroupPriv = common::hasPriv('testtask', 'groupcase');
+    ?>
+    <?php
+    if($hasCasesPriv) echo html::a($this->inlink('cases', "taskID=$taskID&browseType=all&param=0"), "<span class='text'>{$lang->testtask->allCases}</span>", '', "id='allTab' class='btn btn-link'");
+    if($hasCasesPriv) echo html::a($this->inlink('cases', "taskID=$taskID&browseType=assignedtome&param=0"), "<span class='text'>{$lang->testtask->assignedToMe}</span>", '', "id='assignedtomeTab' class='btn btn-link'");
 
-    echo "<li id='groupTab' class='dropdown'>";
-    $groupBy  = isset($groupBy) ? $groupBy : '';
-    $current  = zget($lang->testcase->groups, isset($groupBy) ? $groupBy : '', '');
-    if(empty($current)) $current = $lang->testcase->groups[''];
-    echo html::a('javascript:;', $current . " <span class='caret'></span>", '', "data-toggle='dropdown'");
-    echo "<ul class='dropdown-menu'>";
-    foreach ($lang->testcase->groups as $key => $value)
+    if($hasGroupPriv and $config->global->flow != 'onlyTest')
     {
-        if($key == '') continue;
-        echo '<li' . ($key == $groupBy ? " class='active'" : '') . '>';
-        echo html::a($this->inlink('groupCase', "taskID=$taskID&groupBy=$key"), $value);
+        echo "<div class='btn-group'>";
+        $active  = $browseType == 'group' ? 'btn-active-text' : '';
+        $groupBy = isset($groupBy) ? $groupBy : '';
+        $current = zget($lang->testcase->groups, isset($groupBy) ? $groupBy : '', '');
+        if(empty($current)) $current = $lang->testcase->groups[''];
+        echo html::a('javascript:;', "<span class='text'>{$current} <span class='caret'></span></span>", '', "class='btn btn-link $active' data-toggle='dropdown'");
+        echo "<ul class='dropdown-menu'>";
+        foreach ($lang->testcase->groups as $key => $value)
+        {
+            if($key == '') continue;
+            echo '<li' . ($key == $groupBy ? " class='active'" : '') . '>';
+            echo html::a($this->inlink('groupCase', "taskID=$taskID&groupBy=$key"), $value);
+        }
+        echo '</ul></div>';
     }
-    echo '</ul></li>';
 
-
-    if($this->methodName == 'cases') echo "<li id='bysearchTab'><a href='#'><i class='icon-search icon'></i>&nbsp;{$lang->testcase->bySearch}</a></li> ";
-    echo '<li>' . html::a(inlink('view', "taskID=$taskID"), $lang->testtask->view) . '</li>';
+    if($this->methodName == 'cases') echo "<a class='btn btn-link querybox-toggle' id='bysearchTab'><i class='icon icon-search muted'></i>{$lang->testcase->bySearch}</a>";
     ?>
   </div>
-  <div class='actions'>
+  <div class='btn-toolbar pull-right'>
     <?php
-    echo "<div class='btn-group'>";
     common::printIcon('testtask', 'linkCase', "taskID=$task->id", '', 'button', 'link');
-    common::printIcon('testcase', 'export', "productID=$productID&orderBy=`case`_desc&taskID=$task->id", '', 'button', '', '', 'iframe export');
-    echo '</div>';
-    echo "<div class='btn-group'>";
-    common::printRPN($this->session->testtaskList, '');
-    echo '</div>';
+    common::printIcon('testcase', 'export', "productID=$productID&orderBy=`case`_desc&taskID=$task->id", '', 'button', '', '', 'export');
+    common::printIcon('testtask', 'report', "productID=$productID&taskID=$task->id&browseType=$browseType&branchID=$task->branch&moduleID=" . (empty($moduleID) ? '' : $moduleID));
+    common::printIcon('testtask',   'view',     "taskID=$task->id", '', 'button', 'list-alt');
+    common::printBack($this->session->testtaskList, 'btn btn-link');
     ?>
   </div>
-  <div id='querybox' class='<?php if($browseType =='bysearch') echo 'show';?>'></div>
 </div>
 <?php
 $headerHooks = glob(dirname(dirname(__FILE__)) . "/ext/view/featurebar.*.html.hook.php");

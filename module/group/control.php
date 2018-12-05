@@ -3,7 +3,7 @@
  * The control file of group module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     group
  * @version     $Id: control.php 4648 2013-04-15 02:45:49Z chencongzhi520@gmail.com $
@@ -17,9 +17,9 @@ class group extends control
      * @access public
      * @return void
      */
-    public function __construct()
+    public function __construct($moduleName = '', $methodName = '')
     {
-        parent::__construct();
+        parent::__construct($moduleName, $methodName);
         $this->loadModel('company')->setMenu();
         $this->loadModel('user');
     }
@@ -130,8 +130,10 @@ class group extends control
     {
         if($_POST)
         {
-            $result = $this->group->updateView($groupID);
-            die(js::alert($result ? $this->lang->group->successSaved : $this->lang->group->errorNotSaved));
+            $this->group->updateView($groupID);
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('browse')));
         }
 
         $group = $this->group->getById($groupID);
@@ -148,9 +150,9 @@ class group extends control
     }
 
     /**
-     * Manage privleges of a group. 
-     * 
-     * @param  int    $groupID 
+     * Manage privleges of a group.
+     *
+     * @param  int    $groupID
      * @access public
      * @return void
      */
@@ -167,8 +169,9 @@ class group extends control
         {
             if($type == 'byGroup')  $result = $this->group->updatePrivByGroup($groupID, $menu, $version);
             if($type == 'byModule') $result = $this->group->updatePrivByModule();
-            print(js::alert($result ? $this->lang->group->successSaved : $this->lang->group->errorNotSaved));
-            exit;
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('browse')));
         }
 
         if($type == 'byGroup')
@@ -205,6 +208,7 @@ class group extends control
             foreach($this->lang->resource as $module => $moduleActions)
             {
                 $modules[$module] = $this->lang->$module->common;
+                if($module == 'caselib') $module = 'testsuite';
                 foreach($moduleActions as $action)
                 {
                     $actions[$module][$action] = $this->lang->$module->$action;
@@ -221,10 +225,11 @@ class group extends control
      * Manage members of a group.
      * 
      * @param  int    $groupID 
+     * @param  int    $deptID
      * @access public
      * @return void
      */
-    public function manageMember($groupID)
+    public function manageMember($groupID, $deptID = 0)
     {
         if(!empty($_POST))
         {
@@ -234,7 +239,7 @@ class group extends control
         }
         $group      = $this->group->getById($groupID);
         $groupUsers = $this->group->getUserPairs($groupID);
-        $allUsers   = $this->user->getPairs('nodeleted|noclosed|noempty|noletter');
+        $allUsers   = $this->loadModel('dept')->getDeptUserPairs($deptID);
         $otherUsers = array_diff_assoc($allUsers, $groupUsers);
 
         $title      = $this->lang->company->common . $this->lang->colon . $group->name . $this->lang->colon . $this->lang->group->manageMember;
@@ -244,6 +249,7 @@ class group extends control
         $this->view->title      = $title;
         $this->view->position   = $position;
         $this->view->group      = $group;
+        $this->view->deptTree   = $this->loadModel('dept')->getTreeMenu($rooteDeptID = 0, array('deptModel', 'createGroupManageMemberLink'), $groupID);
         $this->view->groupUsers = $groupUsers;
         $this->view->otherUsers = $otherUsers;
 

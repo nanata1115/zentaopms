@@ -1,6 +1,6 @@
 function changeGroup(role, i)
 {
-    if(role || roleGroup[role])
+    if(role && roleGroup[role])
     {
         $('#group' + i).val(roleGroup[role]); 
     }
@@ -8,6 +8,7 @@ function changeGroup(role, i)
     {
         $('#group' + i).val(''); 
     }
+    $('#group' + i).trigger('chosen:updated');
 }
 function toggleCheck(obj, i)
 {
@@ -21,14 +22,16 @@ function toggleCheck(obj, i)
     }
 }
 
+$(document).ready(removeDitto());//Remove 'ditto' in first row.
+
 $(document).on('click', '.chosen-with-drop', function()
 {
     var select = $(this).prev('select');
     if($(select).val() == 'ditto')
     {
-        var index = $(select).parents('td').index();
-        var row   = $(select).parents('tr').index();
-        var table = $(select).parents('tr').parent();
+        var index = $(select).closest('td').index();
+        var row   = $(select).closest('tr').index();
+        var table = $(select).closest('tr').parent();
         var value = '';
         for(i = row - 1; i >= 0; i--)
         {

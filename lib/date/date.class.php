@@ -3,7 +3,7 @@
  * The date library of zentaopms.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     Date
  * @version     $Id: date.class.php 2605 2013-01-09 07:22:58Z wwccss $
@@ -195,7 +195,7 @@ class date
     public static function getThisMonth()
     {
         $begin = date('Y-m') . '-01 00:00:00';
-        $end   = date('Y-m', strtotime('next month')) . '-00 23:59:59';
+        $end   = date('Y-m-d 23:59:59', strtotime("$begin +1 month -1 day"));
         return array('begin' => $begin, 'end' => $end);
     }
 
@@ -208,7 +208,7 @@ class date
     public static function getLastMonth()
     {
         $begin = date('Y-m', strtotime('last month', strtotime(date('Y-m',time()) . '-01 00:00:01'))) . '-01 00:00:00';
-        $end   = date('Y-m', strtotime('this month')) . '-00 23:59:59';
+        $end   = date('Y-m-d 23:59:59', strtotime(date('Y-m-01') . ' -1 day'));
         return array('begin' => $begin, 'end' => $end);
     }
 

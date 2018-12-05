@@ -21,8 +21,8 @@ $config->company->dynamic->search['params']['actor']      = array('operator' => 
 $config->company->dynamic->search['params']['objectID']   = array('operator' => '=',  'control' => 'input',  'values' => '');
 $config->company->dynamic->search['params']['project']    = array('operator' => '=',  'control' => 'select', 'values' => '');
 $config->company->dynamic->search['params']['objectType'] = array('operator' => '=',  'control' => 'select', 'values' => $lang->action->search->objectTypeList);
-$config->company->dynamic->search['params']['date']       = array('operator' => '>=', 'control' => 'input',  'values' => '', 'class' => 'date');
-$config->company->dynamic->search['params']['action']     = array('operator' => '=',  'control' => 'select', 'values' => $lang->action->search->label);
+$config->company->dynamic->search['params']['date']       = array('operator' => '=',  'control' => 'input',  'values' => '', 'class' => 'date');
+$config->company->dynamic->search['params']['action']     = array('operator' => '=',  'control' => 'select', 'values' => '');
 
 $config->company->browse = new stdClass();
 $config->company->browse->search['module']             = 'user';
@@ -35,10 +35,9 @@ $config->company->browse->search['fields']['phone']    = $lang->user->phone;
 $config->company->browse->search['fields']['join']     = $lang->user->join;
 $config->company->browse->search['fields']['id']       = $lang->user->id;
 $config->company->browse->search['fields']['commiter'] = $lang->user->commiter;
-$config->company->browse->search['fields']['birthday'] = $lang->user->birthyear;
 $config->company->browse->search['fields']['gender']   = $lang->user->gender;
 $config->company->browse->search['fields']['qq']       = $lang->user->qq;
-$config->company->browse->search['fields']['skype']      = $lang->user->skype;
+$config->company->browse->search['fields']['skype']    = $lang->user->skype;
 $config->company->browse->search['fields']['yahoo']    = $lang->user->yahoo;
 $config->company->browse->search['fields']['gtalk']    = $lang->user->gtalk;
 $config->company->browse->search['fields']['wangwang'] = $lang->user->wangwang;
@@ -51,13 +50,12 @@ $config->company->browse->search['params']['dept']     = array('operator' => 'be
 $config->company->browse->search['params']['account']  = array('operator' => 'include',  'control' => 'input',  'values' => '');
 $config->company->browse->search['params']['role']     = array('operator' => '=',        'control' => 'select', 'values' => $lang->user->roleList);
 $config->company->browse->search['params']['phone']    = array('operator' => 'include',  'control' => 'input',  'values' => '');
-$config->company->browse->search['params']['join']     = array('operator' => '>=',       'control' => 'input',  'values' => '', 'class' => 'date');
+$config->company->browse->search['params']['join']     = array('operator' => '=',        'control' => 'input',  'values' => '', 'class' => 'date');
 $config->company->browse->search['params']['id']       = array('operator' => '=',        'control' => 'input',  'values' => '');
 $config->company->browse->search['params']['commiter'] = array('operator' => 'include',  'control' => 'select', 'values' => '');
-$config->company->browse->search['params']['birthday'] = array('operator' => '>=',       'control' => 'input',  'values' => '', 'class' => 'date');
 $config->company->browse->search['params']['gender']   = array('operator' => '=',        'control' => 'select', 'values' => $lang->user->genderList);
 $config->company->browse->search['params']['qq']       = array('operator' => '=',        'control' => 'input',  'values' => '');
-$config->company->browse->search['params']['skype']      = array('operator' => '=',        'control' => 'input',  'values' => '');
+$config->company->browse->search['params']['skype']    = array('operator' => '=',        'control' => 'input',  'values' => '');
 $config->company->browse->search['params']['yahoo']    = array('operator' => '=',        'control' => 'input',  'values' => '');
 $config->company->browse->search['params']['gtalk']    = array('operator' => '=',        'control' => 'input',  'values' => '');
 $config->company->browse->search['params']['wangwang'] = array('operator' => '=',        'control' => 'input',  'values' => '');

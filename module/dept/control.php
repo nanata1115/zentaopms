@@ -3,7 +3,7 @@
  * The control file of dept module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     dept
  * @version     $Id: control.php 4157 2013-01-20 07:09:42Z wwccss $
@@ -19,9 +19,9 @@ class dept extends control
      * @access public
      * @return void
      */
-    public function __construct()
+    public function __construct($moduleName = '', $methodName = '')
     {
-        parent::__construct();
+        parent::__construct($moduleName, $methodName);
         $this->loadModel('company')->setMenu();
     }
 
@@ -41,6 +41,7 @@ class dept extends control
         $this->view->depts       = $this->dept->getTreeMenu($rootDeptID = 0, array('deptmodel', 'createManageLink'));
         $this->view->parentDepts = $parentDepts;
         $this->view->sons        = $this->dept->getSons($deptID);
+        $this->view->tree        = $this->dept->getDataStructure(0);
         $this->display();
     }
 
@@ -90,7 +91,7 @@ class dept extends control
         }
 
         $dept  = $this->dept->getById($deptID);
-        $users = $this->loadModel('user')->getPairs('nodeleted|noletter|noclosed');
+        $users = $this->loadModel('user')->getPairs('noletter|noclosed|nodeleted|all');
 
         $this->view->optionMenu = $this->dept->getOptionMenu();
 
@@ -129,5 +130,19 @@ class dept extends control
             $this->dept->delete($deptID);
             die(js::reload('parent'));
         }
+    }
+
+    /**
+     * Ajax get users 
+     * 
+     * @param  int    $dept 
+     * @param  string $user 
+     * @access public
+     * @return void
+     */
+    public function ajaxGetUsers($dept, $user = '')
+    {
+        $users = array('' => '') + $this->dept->getDeptUserPairs($dept);
+        die(html::select('user', $users, $user, "class='form-control chosen'"));
     }
 }

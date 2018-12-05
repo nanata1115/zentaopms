@@ -1,25 +1,17 @@
 $(function()
 {
-    if($('#needNotReview').prop('checked'))
+    $('#needNotReview').on('change', function()
     {
-        $('#assignedTo').attr('disabled', 'disabled');
-    }
-    else
-    {
-        $('#assignedTo').removeAttr('disabled');
-    }
-    $('#assignedTo').trigger("chosen:updated");
-})
+        $('#assignedTo').attr('disabled', $(this).is(':checked') ? 'disabled' : null).trigger('chosen:updated');
+    });
+    $('#needNotReview').change();
 
-$('#needNotReview').change(function()
-{
-    if($('#needNotReview').prop('checked'))
+    // init pri selector
+    $('#pri').on('change', function()
     {
-        $('#assignedTo').attr('disabled', 'disabled');
-    }
-    else
-    {
-        $('#assignedTo').removeAttr('disabled');
-    }
-    $('#assignedTo').trigger("chosen:updated");
-})
+        var $select = $(this);
+        var $selector = $select.closest('.pri-selector');
+        var value = $select.val();
+        $selector.find('.pri-text').html('<span class="label-pri label-pri-' + value + '" title="' + value + '">' + value + '</span>');
+    });
+});

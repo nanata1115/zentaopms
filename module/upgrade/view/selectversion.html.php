@@ -3,7 +3,7 @@
  * The html template file of select version method of upgrade module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     upgrade
  * @version     $Id: selectversion.html.php 4129 2013-01-18 01:58:14Z wwccss $
@@ -12,7 +12,7 @@
 <?php include '../../common/view/header.lite.html.php';?>
 <?php include '../../common/view/chosen.html.php';?>
 <div class='container'>
-  <form class='form-condensed' method='post' action='<?php echo inlink('confirm');?>'>
+  <form method='post' action='<?php echo inlink('confirm');?>'>
     <div class='modal-dialog'>
       <div class='modal-header'>
         <strong><?php echo $lang->upgrade->selectVersion;?></strong>

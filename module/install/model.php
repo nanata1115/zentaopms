@@ -3,7 +3,7 @@
  * The model file of install module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     install
  * @version     $Id: model.php 5006 2013-07-03 08:52:21Z wyd621@gmail.com $
@@ -13,6 +13,23 @@
 <?php
 class installModel extends model
 {
+    /**
+     * Get license according the client lang.
+     * 
+     * @access public
+     * @return string
+     */
+    public function getLicense()
+    {
+        $clientLang = $this->app->getClientLang();
+
+        $licenseCN = file_get_contents($this->app->getBasePath() . 'doc/LICENSE.CN');
+        $licenseEN = file_get_contents($this->app->getBasePath() . 'doc/LICENSE.EN');
+
+        if($clientLang == 'zh-cn' or $clientLang == 'zh-tw') return $licenseCN . $licenseEN;
+        return $licenseEN . $licenseCN;
+    }
+
     /**
      * Check version of zentao.
      * 
@@ -43,14 +60,11 @@ class installModel extends model
     public function getLatestRelease()
     {
         if(!function_exists('json_decode')) return false;
-        $snoopy = $this->app->loadClass('snoopy');
-        if(@$snoopy->fetchText('http://www.zentao.net/misc-getlatestrelease.json'))
+        $result = file_get_contents('https://www.zentao.net/misc-getlatestrelease.json');
+        if($result)
         {
-            $result = json_decode($snoopy->results);
-            if(isset($result->release) and $this->config->version != $result->release->version)
-            {
-                return $result->release;
-            }
+            $result = json_decode($result);
+            if(isset($result->release) and $this->config->version != $result->release->version) return $result->release;
         }
         return false;
     }
@@ -90,13 +104,79 @@ class installModel extends model
 
     /**
      * Check json extension.
-     * 
+     *
      * @access public
      * @return string   ok|fail
      */
     public function checkJSON()
     {
         return $result = extension_loaded('json') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check openssl extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkOpenssl()
+    {
+        return $result = extension_loaded('openssl') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check mbstring extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkMbstring()
+    {
+        return $result = extension_loaded('mbstring') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check zlib extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkZlib()
+    {
+        return $result = extension_loaded('zlib') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check curl extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkCurl()
+    {
+        return $result = extension_loaded('curl') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check filter extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkFilter()
+    {
+        return $result = extension_loaded('filter') ? 'ok' : 'fail';
+    }
+
+    /**
+     * Check iconv extension.
+     *
+     * @access public
+     * @return string   ok|fail
+     */
+    public function checkIconv()
+    {
+        return $result = extension_loaded('iconv') ? 'ok' : 'fail';
     }
 
     /**
@@ -133,14 +213,10 @@ class installModel extends model
      */
     public function getSessionSavePath()
     {
-        if(preg_match('/WIN/i', PHP_OS))
-        {
-            $result['path']     = preg_replace("/\d;/", '', session_save_path());
-            $result['exists']   = is_dir($result['path']);
-            $result['writable'] = is_writable($result['path']);
-            return $result;
-        }
-        return array('path' => '/tmp', 'exists' => true, 'writable' => true);
+        $result['path']     = preg_replace("/\d;/", '', session_save_path());
+        $result['exists']   = is_dir($result['path']);
+        $result['writable'] = is_writable($result['path']);
+        return $result;
     }
 
     /**
@@ -151,12 +227,19 @@ class installModel extends model
      */
     public function checkSessionSavePath()
     {
-        if(preg_match('/WIN/i', PHP_OS))
+        $sessionSavePath = preg_replace("/\d;/", '', session_save_path());
+        $result = (is_dir($sessionSavePath) and is_writable($sessionSavePath)) ? 'ok' : 'fail'; 
+        if($result == 'fail') return $result;
+
+        /* Test session path again. Fix bug #1527. */
+        file_put_contents($sessionSavePath . '/zentaotest', 'zentao');
+        $sessionContent = file_get_contents($sessionSavePath . '/zentaotest');
+        if($sessionContent == 'zentao')
         {
-            $sessionSavePath = preg_replace("/\d;/", '', session_save_path());
-            return $result   = (is_dir($sessionSavePath) and is_writable($sessionSavePath)) ? 'ok' : 'fail'; 
+            unlink($sessionSavePath . '/zentaotest');
+            return 'ok';
         }
-        return 'ok';
+        return 'fail';
     }
 
     /**
@@ -167,7 +250,7 @@ class installModel extends model
      */
     public function getDataRoot()
     {
-        $result['path']    = $this->app->getAppRoot() . 'www' . $this->app->getPathFix() . 'data';
+        $result['path']    = $this->app->getAppRoot() . 'www' . DS . 'data';
         $result['exists']  = is_dir($result['path']);
         $result['writable']= is_writable($result['path']);
         return $result;
@@ -181,7 +264,7 @@ class installModel extends model
      */
     public function checkDataRoot()
     {
-        $dataRoot = $this->app->getAppRoot() . 'www' . $this->app->getPathFix() . 'data';
+        $dataRoot = $this->app->getAppRoot() . 'www' . DS . 'data';
         return $result = (is_dir($dataRoot) and is_writable($dataRoot)) ? 'ok' : 'fail';
     }
 
@@ -362,7 +445,7 @@ class installModel extends model
      */
     public function createTable($version)
     {
-        $dbFile = $this->app->getAppRoot() . 'db' . $this->app->getPathFix() . 'zentao.sql';
+        $dbFile = $this->app->getAppRoot() . 'db' . DS . 'zentao.sql';
         $tables = explode(';', file_get_contents($dbFile));
         foreach($tables as $table)
         {
@@ -412,7 +495,7 @@ class installModel extends model
             $admin->account  = $this->post->account;
             $admin->realname = $this->post->account;
             $admin->password = md5($this->post->password);
-            $admin->gender   = '';
+            $admin->gender   = 'f';
             $this->dao->insert(TABLE_USER)->data($admin)->check('account', 'notempty')->exec();
 
             /* Update group name and desc on dafault lang. */
@@ -421,6 +504,12 @@ class installModel extends model
             {
                 $data = zget($this->lang->install->groupList, $group->name, '');
                 if($data) $this->dao->update(TABLE_GROUP)->data($data)->where('id')->eq($group->id)->exec();
+            }
+
+            /* Update cron remark by lang. */
+            foreach($this->lang->install->cronList as $command => $remark)
+            {
+                $this->dao->update(TABLE_CRON)->set('remark')->eq($remark)->where('command')->eq($command)->exec();
             }
         }
     }
@@ -433,7 +522,8 @@ class installModel extends model
      */
     public function importDemoData()
     {
-        $demoDataFile = $this->app->getAppRoot() . 'db' . $this->app->getPathFix() . 'demo.sql';
+        $demoDataFile = $this->app->clientLang == 'en' ? 'endemo.sql' : 'demo.sql';
+        $demoDataFile = $this->app->getAppRoot() . 'db' . DS . $demoDataFile;
         $insertTables = explode(";\n", file_get_contents($demoDataFile));
         foreach($insertTables as $table)
         { 
@@ -452,44 +542,5 @@ class installModel extends model
         $config->value   = '1';
         $this->dao->replace(TABLE_CONFIG)->data($config)->exec();
         return true;
-    }
-
-    /**
-     * Get the mysqldump binary.
-     * 
-     * @access public
-     * @return string
-     */
-    public function getMySQLDump()
-    {
-        $mysqldump = '';
-
-        if(strpos(__FILE__, '/opt/lampp') !== false)         // linux.
-        {
-            $mysqldump = '/opt/lampp/bin/mysqldump';
-        }
-        elseif(strpos(__FILE__, '\xampp\zentao') !== false)  // windows.
-        {
-            $mysqldump = substr(__FILE__, 0, 2) . '\xampp\mysql\bin\mysqldump.exe';
-        }
-        else
-        {
-            if(strpos(PHP_OS, 'WIN') !== false)
-            {
-                $mysql = @`wmic process where name='mysqld.exe' get executablepath`;
-                if(strpos($mysql, 'mysqld.exe') !== false)
-                {
-                    $mysql = explode("\n", $mysql);
-                    if(isset($mysql[1])) $mysqldump = trim(str_replace('mysqld.exe', 'mysqldump.exe', $mysql[1]));
-                }
-            }
-            else
-            {
-                $mysqldump = trim(@`which mysqldump`);
-            }
-        }
-
-        if(file_exists($mysqldump)) return $mysqldump;
-        return '';
     }
 }

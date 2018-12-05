@@ -3,7 +3,7 @@
  * The view file of case module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     case
  * @version     $Id: view.html.php 594 2010-03-27 13:44:07Z wwccss $
@@ -11,118 +11,155 @@
  */
 ?>
 <?php include '../../common/view/header.html.php';?>
-<?php include '../../common/view/treeview.html.php';?>
+<?php include '../../common/view/datatable.fix.html.php';?>
 <?php include './caseheader.html.php';?>
 <?php js::set('confirmUnlink', $lang->testtask->confirmUnlinkCase)?>
-<script language="Javascript">
-var browseType = '<?php echo $browseType;?>';
-var moduleID   = '<?php echo $moduleID;?>';
-</script>
-<div class='side' id='casesbox'>
-  <a class='side-handle' data-id='testtaskTree'><i class='icon-caret-left'></i></a>
-  <div class='side-body'>
-    <div class='panel panel-sm'>
-      <div class='panel-heading nobr'><?php echo html::icon($lang->icons['product']);?> <strong><?php echo $productName;?></strong></div>
-      <div class='panel-body'>
-        <?php echo $moduleTree;?>
+<?php js::set('taskCaseBrowseType', ($browseType == 'bymodule' and $this->session->taskCaseBrowseType == 'bysearch') ? 'all' : $this->session->taskCaseBrowseType);?>
+<?php js::set('browseType', $browseType);?>
+<?php js::set('moduleID', $moduleID);?>
+<div id='mainContent' class='main-row fade'>
+  <div class='side-col' id='sidebar'>
+    <div class="sidebar-toggle"><i class="icon icon-angle-left"></i></div>
+    <div class='cell'><?php echo $moduleTree;?></div>
+  </div>
+  <div class='main-col'>
+    <div class="cell" id="queryBox"></div>
+    <?php
+    $datatableId  = $this->moduleName . ucfirst($this->methodName);
+    $useDatatable = (isset($config->datatable->$datatableId->mode) and $config->datatable->$datatableId->mode == 'datatable');
+    ?>
+    <form class='main-table table-cases' data-hot='true' method='post' name='casesform' id='casesForm' <?php if(!$useDatatable) echo "data-ride='table'";?>>
+      <div class="table-header fixed-right">
+        <nav class="btn-toolbar pull-right"></nav>
       </div>
-    </div>
+      <?php
+      $vars = "taskID=$task->id&browseType=$browseType&param=$param&orderBy=%s&recToal={$pager->recTotal}&recPerPage={$pager->recPerPage}";
+
+      $canBatchEdit   = common::hasPriv('testcase', 'batchEdit');
+      $canBatchUnlink = common::hasPriv('testtask', 'batchUnlinkCases');
+      $canBatchAssign = common::hasPriv('testtask', 'batchAssign');
+      $canBatchRun    = common::hasPriv('testtask', 'batchRun');
+      $hasCheckbox    = ($canBatchEdit or $canBatchUnlink or $canBatchAssign or $canBatchRun);
+
+      if($useDatatable) include '../../common/view/datatable.html.php';
+      if(!$useDatatable) include '../../common/view/tablesorter.html.php';
+
+      $config->testcase->datatable->defaultField = $config->testtask->datatable->defaultField;
+      $config->testcase->datatable->fieldList['actions']['width'] = '120';
+
+      $setting = $this->datatable->getSetting('testtask');
+      $widths  = $this->datatable->setFixedFieldWidth($setting);
+      $columns = 0;
+      ?>
+      <?php if(!$useDatatable) echo '<div class="table-responsive">';?>
+        <table class='table has-sort-head<?php if($useDatatable) echo ' datatable';?>' id='caseList' data-fixed-left-width='<?php echo $widths['leftWidth']?>' data-fixed-right-width='<?php echo $widths['rightWidth']?>' data-checkbox-name='caseIDList[]'>
+          <thead>
+            <tr>
+            <?php
+            foreach($setting as $key => $value)
+            {
+                if($value->show)
+                {
+                    $this->datatable->printHead($value, $orderBy, $vars);
+                    $columns ++;
+                }
+            }
+            ?>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach($runs as $run):?>
+            <tr data-id='<?php echo $run->id?>'>
+              <?php foreach($setting as $key => $value) $this->testtask->printCell($value, $run, $users, $task, $branches, $useDatatable ? 'datatable' : 'table');?>
+            </tr>
+            <?php endforeach;?>
+          </tbody>
+        </table>
+      <?php if(!$useDatatable) echo '</div>';?>
+      <?php if($runs):?>
+      <div class='table-footer'>
+        <?php if($hasCheckbox):?>
+        <div class="checkbox-primary check-all"><label><?php echo $lang->selectAll?></label></div>
+        <div class='table-actions btn-toolbar'>
+          <div class='btn-group dropup'>
+            <?php
+            $actionLink = $this->createLink('testcase', 'batchEdit', "productID=$productID");
+            $misc       = $canBatchEdit ? "onclick=\"setFormAction('$actionLink')\"" : "disabled='disabled'";
+            echo html::commonButton($lang->edit, $misc);
+            ?>
+            <?php if($canBatchUnlink):?>
+            <button type='button' class='btn dropdown-toggle' data-toggle='dropdown'><span class='caret'></span></button>
+            <ul class='dropdown-menu'>
+              <?php
+              $actionLink = $this->createLink('testtask', 'batchUnlinkCases', "taskID=$task->id");
+              $misc       = "onclick=\"setFormAction('$actionLink')\"";
+              echo "<li>" . html::a('javascript:;', $lang->testtask->unlinkCase, '', $misc) . "</li>";
+              ?>
+            </ul>
+            <?php endif;?>
+          </div>
+          <?php if($canBatchAssign):?>
+          <div class="btn-group dropup">
+            <button data-toggle="dropdown" type="button" class="btn"><?php echo $lang->testtask->assign;?> <span class="caret"></span></button>
+            <?php
+            $withSearch = count($assignedTos) > 10;
+            $actionLink = inLink('batchAssign', "taskID=$task->id");
+            echo html::select('assignedTo', $assignedTos, '', 'class="hidden"');
+            ?>
+            <div class="dropdown-menu search-list<?php if($withSearch) echo ' search-box-sink';?>" data-ride="searchList">
+              <?php if($withSearch):?>
+              <?php $membersPinYin = common::convert2Pinyin($assignedTos);?>
+              <div class="input-control search-box has-icon-left has-icon-right search-example">
+                <input id="userSearchBox" type="search" autocomplete="off" class="form-control search-input">
+                <label for="userSearchBox" class="input-control-icon-left search-icon"><i class="icon icon-search"></i></label>
+                <a class="input-control-icon-right search-clear-btn"><i class="icon icon-close icon-sm"></i></a>
+              </div>
+              <?php endif;?>
+              <div class="list-group">
+              <?php foreach ($assignedTos as $key => $value):?>
+                  <?php
+                  if(empty($key) or $key == 'closed') continue;
+                  $searchKey = $withSearch ? ('data-key="' . zget($membersPinYin, $value, '') . " @$key\"") : "data-key='@$key'";
+                  echo html::a("javascript:$(\"#assignedTo\").val(\"$key\");setFormAction(\"$actionLink\", \"hiddenwin\")", $value, '', $searchKey);
+                  ?>
+              <?php endforeach;?>
+              </div>
+            </div>
+          </div>
+          <?php endif;?>
+          <?php
+          if($canBatchRun)
+          {
+              $actionLink = inLink('batchRun', "productID=$productID&orderBy=id_desc&from=testtask&taskID=$taskID");
+              echo html::commonButton($lang->testtask->runCase, "onclick=\"setFormAction('$actionLink')\"");
+          }
+          ?>
+        </div>
+        <?php endif;?>
+        <?php $pager->show('right', 'pagerjs');?>
+      </div>
+      <?php else:?>
+      <div class="table-empty-tip">
+        <p><span class="text-muted"><?php echo $lang->testcase->noCase;?></span> <?php common::printLink('testtask', 'linkCase', "taskID={$taskID}", "<i class='icon icon-plus'></i> " . $lang->testtask->linkCase, '', "class='btn btn-info'");?></p>
+      </div>
+      <?php endif;?>
+    </form>
   </div>
 </div>
-<div class='main'>
-  <form method='post' name='casesform'>
-    <?php $vars = "taskID=$task->id&browseType=$browseType&param=$param&orderBy=%s&recToal={$pager->recTotal}&recPerPage={$pager->recPerPage}"; ?>
-    <table class='table table-condensed table-hover table-striped tablesorter table-fixed' id='caseList'>
-      <thead>
-        <tr class='colhead'>
-          <th class='w-id'><nobr><?php common::printOrderLink('id',            $orderBy, $vars, $lang->idAB);?></nobr></th>
-          <th class='w-pri'>     <?php common::printOrderLink('pri',           $orderBy, $vars, $lang->priAB);?></th>
-          <th>                   <?php common::printOrderLink('title',         $orderBy, $vars, $lang->testcase->title);?></th>
-          <th class='w-type'>    <?php common::printOrderLink('type',          $orderBy, $vars, $lang->testcase->type);?></th>
-          <th class='w-user'>    <?php common::printOrderLink('assignedTo',    $orderBy, $vars, $lang->testtask->assignedTo);?></th>
-          <th class='w-user'>    <?php common::printOrderLink('lastRunner',    $orderBy, $vars, $lang->testtask->lastRunAccount);?></th>
-          <th class='w-100px'>   <?php common::printOrderLink('lastRunDate',   $orderBy, $vars, $lang->testtask->lastRunTime);?></th>
-          <th class='w-80px'>    <?php common::printOrderLink('lastRunResult', $orderBy, $vars, $lang->testtask->lastRunResult);?></th>
-          <th class='w-status'>  <?php common::printOrderLink('status',        $orderBy, $vars, $lang->statusAB);?></th>
-          <th class='w-100px {sorter: false}'><?php echo $lang->actions;?></th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        $canBatchEdit   = common::hasPriv('testcase', 'batchEdit');
-        $canBatchAssign = common::hasPriv('testtask', 'batchAssign');
-        $canBatchRun    = common::hasPriv('testtask', 'batchRun');
-        ?>
-        <?php foreach($runs as $run):?>
-        <tr class='text-center'>
-          <td class='text-left'>
-            <?php if($canBatchEdit or $canBatchAssign or $canBatchRun):?>
-            <input type='checkbox' name='caseIDList[]' value='<?php echo $run->case;?>'/> 
-            <?php endif;?>
-            <?php printf('%03d', $run->case);?>
-          </td>
-          <td><span class='<?php echo 'pri' . zget($lang->testcase->priList, $run->pri, $run->pri)?>'><?php echo zget($lang->testcase->priList, $run->pri, $run->pri)?></span></td>
-          <td class='text-left nobr'><?php echo html::a($this->createLink('testcase', 'view', "caseID=$run->case&version=$run->version&from=testtask&taskID=$run->task"), $run->title, '_blank');?>
-          </td>
-          <td><?php echo $lang->testcase->typeList[$run->type];?></td>
-          <td><?php $assignedTo = $users[$run->assignedTo]; echo substr($assignedTo, strpos($assignedTo, ':') + 1);?></td>
-          <td><?php $lastRunner = $users[$run->lastRunner]; echo substr($lastRunner, strpos($lastRunner, ':') + 1);?></td>
-          <td><?php if(!helper::isZeroDate($run->lastRunDate)) echo date(DT_MONTHTIME1, strtotime($run->lastRunDate));?></td>
-          <td class='<?php echo $run->lastRunResult;?>'><?php if($run->lastRunResult) echo $lang->testcase->resultList[$run->lastRunResult];?></td>
-          <td class='<?php echo $run->status;?>'><?php echo ($run->version < $run->caseVersion) ? "<span class='warning'>{$lang->testcase->changed}</span>" : $lang->testtask->statusList[$run->status];?></td>
-          <td class='text-center'>
-            <?php
-            common::printIcon('testtask', 'runCase',    "id=$run->id", '', 'list', '', '', 'runCase iframe');
-            common::printIcon('testtask', 'results',    "id=$run->id", '', 'list', '', '', 'iframe');
-
-            if(common::hasPriv('testtask', 'unlinkCase'))
-            {
-                $unlinkURL = $this->createLink('testtask', 'unlinkCase', "caseID=$run->id&confirm=yes");
-                echo html::a("javascript:ajaxDelete(\"$unlinkURL\",\"caseList\",confirmUnlink)", '<i class="icon-unlink"></i>', '', "title='{$lang->testtask->unlinkCase}' class='btn-icon'");
-            }
-
-            common::printIcon('testcase', 'createBug', "product=$productID&extra=projectID=$task->project,buildID=$task->build,caseID=$run->case,version=$run->version,runID=$run->id,testtask=$taskID", $run, 'list', 'bug', '', 'iframe');
-            ?>
-          </td>
-        </tr>
-        <?php endforeach;?>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan='10'>
-            <?php if($runs):?>
-            <div class='table-actions clearfix'>
-
-            <?php 
-            if($canBatchEdit or $canBatchAssign or $canBatchRun) echo "<div class='btn-group'>" . html::selectButton() . '</div>';
-            if($canBatchEdit)
-            {
-                $actionLink = $this->createLink('testcase', 'batchEdit', "productID=$productID");
-                echo html::commonButton($lang->edit, "onclick=\"setFormAction('$actionLink')\"");
-            }
-            if($canBatchAssign)
-            {
-                $actionLink = inLink('batchAssign', "taskID=$task->id");
-                echo "<div class='input-group w-200px'>";
-                echo html::select('assignedTo', $users, '', 'class="form-control chosen"');
-                echo "<span class='input-group-addon'>";
-                echo html::a("javascript:setFormAction(\"$actionLink\")", $lang->testtask->assign);
-                echo '</span></div>';
-            }
-            if($canBatchRun)
-            {
-                $actionLink = inLink('batchRUN', "productID=$productID&orderBy=id_desc&from=testtask");
-                echo html::commonButton($lang->testtask->runCase, "onclick=\"setFormAction('$actionLink')\"");
-            }
-            ?>
-
-            </div>
-            <?php endif;?>
-            <?php echo $pager->show();?>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  </form>
-</div>
+<script>
+$('#module' + moduleID).addClass('active');
+$('#' + taskCaseBrowseType + 'Tab').addClass('btn-active-text');
+<?php if($browseType == 'bysearch'):?>
+$shortcut = $('#QUERY<?php echo (int)$param;?>Tab');
+if($shortcut.size() > 0)
+{
+    $shortcut.addClass('active');
+    $('#bysearchTab').removeClass('active');
+    $('#querybox').removeClass('show');
+}
+<?php endif;?>
+<?php if($useDatatable):?>
+$(function(){$('#casesForm').table();})
+<?php endif;?>
+</script>
 <?php include '../../common/view/footer.html.php';?>

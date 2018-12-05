@@ -8,7 +8,7 @@ function setPreview()
     else
     {
         storyLink = createLink('story', 'view', "storyID=" + $('#story').val());
-        var concat = config.requestType == 'PATH_INFO' ? '?'  : '&';
+        var concat = config.requestType != 'GET' ? '?'  : '&';
         storyLink  = storyLink + concat + 'onlybody=yes';
         $('#preview').removeClass('hidden');
         $('#preview').attr('href', storyLink);
@@ -33,10 +33,7 @@ $(function()
     };
     $(document).on('change', '#story', function()
     {
-       if($(this).val() === 'showmore')
-       {
-            showSearchModal();
-       }
+       if($(this).val() === 'showmore') showSearchModal();
     });
 
     $(document).on('click', '#story_chosen .chosen-results > li.no-results', showSearchModal);
@@ -81,7 +78,9 @@ $(function()
             if(key && key != $searchInput.data('lastkey'))
             {
                 $searchResult.empty().append('<li class="loading"><i class="icon-spin icon-spinner icon-2x"></i></li>');
-                var link = createLink('story', 'ajaxSearchProductStories', 'key=' + key + '&productID=' + $('#product').val() + '&moduleID=' + $('#module').val() + '&storyID=0&status=noclosed&limit=50');
+                var branch = $('#branch').val();
+                if(typeof(branch) == 'undefined') branch = 0;
+                var link = createLink('story', 'ajaxSearchProductStories', 'key=' + key + '&productID=' + $('#product').val() + '&branch=' + branch + '&moduleID=' + $('#module').val() + '&storyID=0&status=noclosed&limit=50');
                 $.getJSON(link, function(result)
                 {
                     $searchResult.empty();
@@ -133,4 +132,16 @@ $(function()
     });
 
     $("#preview").modalTrigger({width:960, type:'iframe'});
-})
+
+    $('[data-toggle=tooltip]').tooltip();
+
+    initSteps();
+
+    $('#pri').on('change', function()
+    {
+        var $select = $(this);
+        var $selector = $select.closest('.pri-selector');
+        var value = $select.val();
+        $selector.find('.pri-text').html('<span class="label-pri label-pri-' + value + '" title="' + value + '">' + value + '</span>');
+    });
+});

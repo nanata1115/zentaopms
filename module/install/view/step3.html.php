@@ -3,10 +3,10 @@
  * The html template file of step3 method of install module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
- * @author	  Chunsheng Wang <chunsheng@cnezsoft.com>
- * @package	 ZenTaoPMS
- * @version	 $Id: step3.html.php 4297 2013-01-27 07:51:45Z wwccss $
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
+ * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
+ * @package     ZenTaoPMS
+ * @version     $Id: step3.html.php 4297 2013-01-27 07:51:45Z wwccss $
  */
 ?>
 <?php include '../../common/view/header.lite.html.php';?>
@@ -26,7 +26,6 @@ if(!isset($error))
 \$config->db->prefix      = '$dbPrefix';
 \$config->webRoot         = getWebRoot();
 \$config->default->lang   = '$defaultLang';
-\$config->mysqldump       = '$mysqldump';
 EOT;
 }
 ?>
@@ -38,7 +37,7 @@ EOT;
     </div>
     <div class='modal-body'>
       <div class='alert alert-danger alert-pure with-icon'>
-        <i class='icon-info-sign'></i>
+        <i class='icon-exclamation-sign'></i>
         <div class='content'><?php echo $error;?></div>
       </div>
     </div>
@@ -65,12 +64,12 @@ EOT;
             }
             else
             {
-                printf($lang->install->save2File, $this->app->getConfigRoot() . 'my.php');
+                printf($lang->install->save2File, $myConfigFile);
             }
         }
         else
         {
-            printf($lang->install->save2File, $this->app->getConfigRoot() . 'my.php');
+            printf($lang->install->save2File, $myConfigFile);
         }
         ?>
       </div>

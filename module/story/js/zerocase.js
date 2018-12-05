@@ -1,4 +1,4 @@
 $(document).ready(function()
 {
-    $('#zerocaseTab').addClass('active');
+    $('#zerocaseTab').addClass('btn-active-text');
 });

@@ -3,7 +3,7 @@
  * The control file of cron of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     cron
  * @version     $Id$
@@ -38,6 +38,17 @@ class cron extends control
         if(!$turnon and $confirm == 'no') die(js::confirm($this->lang->cron->confirmTurnon, inlink('turnon', "confirm=yes")));
         $this->loadModel('setting')->setItem('system.common.global.cron', $turnon);
         die(js::reload('parent'));
+    }
+
+    /**
+     * Open cron process.
+     * 
+     * @access public
+     * @return void
+     */
+    public function openProcess()
+    {
+        $this->display();
     }
 
     /**
@@ -117,16 +128,21 @@ class cron extends control
     /**
      * Ajax exec cron.
      * 
+     * @param  bool    $restart 
      * @access public
      * @return void
      */
-    public function ajaxExec()
+    public function ajaxExec($restart = false)
     {
         ignore_user_abort(true);
         set_time_limit(0);
         session_write_close();
         /* Check cron turnon. */
         if(empty($this->config->global->cron)) die();
+
+        /* Create restart tag file. */
+        $restartTag = $this->app->getCacheRoot() . 'restartcron';
+        if($restart) touch($restartTag);
 
         /* make cron status to running. */
         $configID = $this->cron->getConfigID();
@@ -142,13 +158,22 @@ class cron extends control
         $startedTime = time();
         while(true)
         {
+            dao::$cache = array();
+
             /* When cron is null then die. */
             if(empty($crons)) break;
             if(empty($parsedCrons)) break;
             if(!$this->cron->getTurnon()) break;
 
+            /* Die old process when restart. */
+            if(file_exists($restartTag) and !$restart) die(unlink($restartTag));
+            $restart = false;
+
             /* Run crons. */
             $now = new datetime('now');
+            unset($_SESSION['company']);
+            unset($this->app->company);
+            $this->common->setCompany();
             $this->common->loadConfigFromDB();
             foreach($parsedCrons as $id => $cron)
             {
@@ -208,7 +233,7 @@ class cron extends control
             }
 
             /* Sleep some seconds. */
-            $sleepTime = 60 - ((time() - $now->getTimestamp()) % 60);
+            $sleepTime = 60 - ((time() - strtotime($now->format('Y-m-d H:i:s'))) % 60);
             sleep($sleepTime);
 
             /* Break while. */

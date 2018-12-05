@@ -3,7 +3,7 @@
  * The convert module zh-tw file of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     convert
  * @version     $Id: zh-tw.php 4129 2013-01-18 01:58:14Z wwccss $
@@ -11,10 +11,6 @@
  */
 $lang->convert->common  = '從其他系統導入';
 $lang->convert->index   = '首頁';
-$lang->convert->next    = '下一步';
-$lang->convert->pre     = '返回';
-$lang->convert->reload  = '刷新';
-$lang->convert->error   = '錯誤 ';
 
 $lang->convert->start   = '開始轉換';
 $lang->convert->desc    = <<<EOT
@@ -31,8 +27,6 @@ $lang->convert->convertRedmine = '轉換Redmine';
 $lang->convert->convertBugFree = '轉換BugFree';
 
 $lang->convert->selectSource     = '選擇來源系統及版本';
-$lang->convert->source           = '來源系統';
-$lang->convert->version          = '版本';
 $lang->convert->mustSelectSource = "必須選擇一個來源。";
 
 $lang->convert->direction             = "請選擇{$lang->projectCommon}問題轉換方向";
@@ -49,10 +43,9 @@ $lang->convert->sourceList['Redmine'] = array('Redmine_1.1' => '1.1');
 $lang->convert->setting     = '設置';
 $lang->convert->checkConfig = '檢查配置';
 
-$lang->convert->ok          = '<span class="text-success"><i class="icon-ok-sign"></i> 檢查通過</span>';
+$lang->convert->ok          = '<span class="text-success"><i class="icon-check-sign"></i> 檢查通過</span>';
 $lang->convert->fail        = '<span class="text-danger"><i class="icon-remove-sign"></i> 檢查失敗</span>';
 
-$lang->convert->settingDB   = '設置資料庫';
 $lang->convert->dbHost      = '資料庫伺服器';
 $lang->convert->dbPort      = '伺服器連接埠';
 $lang->convert->dbUser      = '資料庫用戶名';
@@ -97,7 +90,6 @@ $lang->convert->redmine->docLibs      = '文檔庫';
 $lang->convert->redmine->docs         = '文檔';
 $lang->convert->redmine->files        = '附件';
 
-$lang->convert->errorConnectDB     = '資料庫連接失敗 ';
 $lang->convert->errorFileNotExits  = '檔案 %s 不存在';
 $lang->convert->errorUserExists    = '用戶 %s 已存在';
 $lang->convert->errorGroupExists   = '分組 %s 已存在';

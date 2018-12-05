@@ -3,51 +3,62 @@
  * The story module zh-tw file of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     story
  * @version     $Id: zh-tw.php 5141 2013-07-15 05:57:15Z chencongzhi520@gmail.com $
  * @link        http://www.zentao.net
  */
-$lang->story->browse      = "需求列表";
 $lang->story->create      = "提需求";
-$lang->story->createCase  = "建用例";
-$lang->story->batchCreate = "批量添加";
+$lang->story->batchCreate = "批量創建";
 $lang->story->change      = "變更";
 $lang->story->changed     = '需求變更';
 $lang->story->review      = '評審';
 $lang->story->batchReview = '批量評審';
 $lang->story->edit        = "編輯";
 $lang->story->batchEdit   = "批量編輯";
+$lang->story->subdivide   = '細分';
 $lang->story->close       = '關閉';
 $lang->story->batchClose  = '批量關閉';
 $lang->story->activate    = '激活';
 $lang->story->delete      = "刪除";
 $lang->story->view        = "需求詳情";
-$lang->story->legend      = "相關";
+$lang->story->setting     = "設置";
 $lang->story->tasks       = "相關任務";
+$lang->story->bugs        = "相關Bug";
+$lang->story->cases       = "相關用例";
 $lang->story->taskCount   = '任務數';
-$lang->story->bugs        = "Bug";
+$lang->story->bugCount    = 'Bug數';
+$lang->story->caseCount   = '用例數';
+$lang->story->taskCountAB = 'T';
+$lang->story->bugCountAB  = 'B';
+$lang->story->caseCountAB = 'C';
 $lang->story->linkStory   = '關聯需求';
+$lang->story->unlinkStory = '移除相關需求';
 $lang->story->export      = "導出數據";
 $lang->story->zeroCase    = "零用例需求";
+$lang->story->zeroTask    = "只列零任務需求";
 $lang->story->reportChart = "統計報表";
-$lang->story->batchChangePlan  = "批量修改計劃";
-$lang->story->batchChangeStage = "批量修改階段";
-$lang->story->batchAssignTo    = "批量指派";
+$lang->story->copyTitle   = "同需求名稱";
+$lang->story->batchChangePlan   = "批量修改計劃";
+$lang->story->batchChangeBranch = "批量修改分支";
+$lang->story->batchChangeStage  = "批量修改階段";
+$lang->story->batchAssignTo     = "批量指派";
+$lang->story->batchChangeModule = "批量修改模組";
+$lang->story->viewAll           = '查看全部';
 
 $lang->story->common         = '需求';
 $lang->story->id             = '編號';
 $lang->story->product        = "所屬{$lang->productCommon}";
+$lang->story->branch         = "分支/平台";
 $lang->story->module         = '所屬模組';
-$lang->story->source         = '來源';
+$lang->story->moduleAB       = '模組';
+$lang->story->source         = '需求來源';
+$lang->story->sourceNote     = '來源備註';
 $lang->story->fromBug        = '來源Bug';
-$lang->story->release        = '發佈計劃';
-$lang->story->bug            = '相關bug';
 $lang->story->title          = '需求名稱';
 $lang->story->spec           = '需求描述';
 $lang->story->verify         = '驗收標準';
-$lang->story->type           = '需求類型 ';
 $lang->story->pri            = '優先順序';
 $lang->story->estimate       = '預計工時';
 $lang->story->estimateAB     = '預計';
@@ -62,7 +73,6 @@ $lang->story->assignedTo     = '指派給';
 $lang->story->assignedDate   = '指派日期';
 $lang->story->lastEditedBy   = '最後修改';
 $lang->story->lastEditedDate = '最後修改日期';
-$lang->story->lastEdited     = '最後修改';
 $lang->story->closedBy       = '由誰關閉';
 $lang->story->closedDate     = '關閉日期';
 $lang->story->closedReason   = '關閉原因';
@@ -70,7 +80,6 @@ $lang->story->rejectedReason = '拒絶原因';
 $lang->story->reviewedBy     = '由誰評審';
 $lang->story->reviewedDate   = '評審時間';
 $lang->story->version        = '版本號';
-$lang->story->project        = '所屬' . $lang->projectCommon;
 $lang->story->plan           = '所屬計劃';
 $lang->story->planAB         = '計劃';
 $lang->story->comment        = '備註';
@@ -81,8 +90,16 @@ $lang->story->reviewResult   = '評審結果';
 $lang->story->preVersion     = '之前版本';
 $lang->story->keywords       = '關鍵詞';
 $lang->story->newStory       = '繼續添加需求';
+$lang->story->colorTag       = '顏色標籤';
+$lang->story->files          = '附件';
+$lang->story->copy           = "複製需求";
+$lang->story->total          = '總需求';
+$lang->story->allStories     = '所有需求';
+$lang->story->unclosed       = '未關閉';
+$lang->story->deleted        = '已刪除';
 
-$lang->story->same = '同上';
+$lang->story->ditto       = '同上';
+$lang->story->dittoNotice = '該需求與上一需求不屬於同一產品！';
 
 $lang->story->useList[0] = '不使用';
 $lang->story->useList[1] = '使用';
@@ -103,6 +120,7 @@ $lang->story->stageList['testing']    = '測試中';
 $lang->story->stageList['tested']     = '測試完畢';
 $lang->story->stageList['verified']   = '已驗收';
 $lang->story->stageList['released']   = '已發佈';
+$lang->story->stageList['closed']     = '已關閉';
 
 $lang->story->reasonList['']           = '';
 $lang->story->reasonList['done']       = '已完成';
@@ -129,6 +147,8 @@ $lang->story->sourceList['user']       = '用戶';
 $lang->story->sourceList['po']         = $lang->productCommon . '經理';
 $lang->story->sourceList['market']     = '市場';
 $lang->story->sourceList['service']    = '客服';
+$lang->story->sourceList['operation']  = '運營';
+$lang->story->sourceList['support']    = '技術支持';
 $lang->story->sourceList['competitor'] = '競爭對手';
 $lang->story->sourceList['partner']    = '合作夥伴';
 $lang->story->sourceList['dev']        = '開發人員';
@@ -136,11 +156,11 @@ $lang->story->sourceList['tester']     = '測試人員';
 $lang->story->sourceList['bug']        = 'Bug';
 $lang->story->sourceList['other']      = '其他';
 
-$lang->story->priList[]   = '';
-$lang->story->priList[3]  = '3';
-$lang->story->priList[1]  = '1';
-$lang->story->priList[2]  = '2';
-$lang->story->priList[4]  = '4';
+$lang->story->priList[]  = '';
+$lang->story->priList[1] = '1';
+$lang->story->priList[2] = '2';
+$lang->story->priList[3] = '3';
+$lang->story->priList[4] = '4';
 
 $lang->story->legendBasicInfo      = '基本信息';
 $lang->story->legendLifeTime       = '需求的一生';
@@ -155,46 +175,50 @@ $lang->story->legendLinkStories    = '相關需求';
 $lang->story->legendChildStories   = '細分需求';
 $lang->story->legendSpec           = '需求描述';
 $lang->story->legendVerify         = '驗收標準';
-$lang->story->legendHistory        = '歷史記錄';
 $lang->story->legendMisc           = '其他相關';
 
 $lang->story->lblChange            = '變更需求';
 $lang->story->lblReview            = '評審需求';
 $lang->story->lblActivate          = '激活需求';
 $lang->story->lblClose             = '關閉需求';
+$lang->story->lblTBC               = '任務Bug用例';
 
-$lang->story->checkAffection       = '檢查影響';
+$lang->story->checkAffection       = '影響範圍';
 $lang->story->affectedProjects     = '影響的' . $lang->projectCommon;
 $lang->story->affectedBugs         = '影響的Bug';
 $lang->story->affectedCases        = '影響的用例';
 
-$lang->story->specTemplate          = "建議參考的模板：作為一名<<i class='text-important'>某種類型的用戶</i>>，我希望<<i class='text-important'>達成某些目的</i>>，這樣可以<<i class='text-important'>開發的價值</i>>。";
+$lang->story->specTemplate          = "建議參考的模板：作為一名<某種類型的用戶>，我希望<達成某些目的>，這樣可以<開發的價值>。";
 $lang->story->needNotReview         = '不需要評審';
-$lang->story->afterSubmit           = "添加之後";
 $lang->story->successSaved          = "需求成功添加，";
 $lang->story->confirmDelete         = "您確認刪除該需求嗎?";
-$lang->story->confirmBatchClose     = "您確認關閉這些需求嗎?";
-$lang->story->errorFormat           = '需求數據有誤';
-$lang->story->errorEmptyTitle       = '標題不能為空';
+$lang->story->errorEmptyChildStory  = '『細分需求』不能為空。';
 $lang->story->mustChooseResult      = '必須選擇評審結果';
 $lang->story->mustChoosePreVersion  = '必須選擇回溯的版本';
-$lang->story->ajaxGetProjectStories = "介面:獲取{$lang->projectCommon}需求列表";
-$lang->story->ajaxGetProductStories = "介面:獲取{$lang->productCommon}需求列表";
+$lang->story->noStory               = '暫時沒有需求。';
+$lang->story->ignoreChangeStage     = '需求 %s 為草稿狀態，沒有修改其階段。';
 
 $lang->story->form = new stdclass();
-$lang->story->form->titleNote = '一句話簡要表達需求內容';
 $lang->story->form->area      = '該需求所屬範圍';
 $lang->story->form->desc      = '描述及標準，什麼需求？如何驗收？';
 $lang->story->form->resource  = '資源分配，有誰完成？需要多少時間？';
 $lang->story->form->file      = '附件，如果該需求有相關檔案，請點此上傳。';
 
 $lang->story->action = new stdclass();
-$lang->story->action->reviewed            = array('main' => '$date, 由 <strong>$actor</strong> 記錄評審結果，結果為 <strong>$extra</strong>。', 'extra' => $lang->story->reviewResultList);
-$lang->story->action->closed              = array('main' => '$date, 由 <strong>$actor</strong> 關閉，原因為 <strong>$extra</strong>。', 'extra' => $lang->story->reasonList);
-$lang->story->action->linked2plan         = array('main' => '$date, 由 <strong>$actor</strong> 關聯到計劃 <strong>$extra</strong>。'); 
-$lang->story->action->unlinkedfromplan    = array('main' => '$date, 由 <strong>$actor</strong> 從計劃 <strong>$extra</strong> 移除。'); 
-$lang->story->action->linked2project      = array('main' => '$date, 由 <strong>$actor</strong> 關聯到' . $lang->projectCommon . ' <strong>$extra</strong>。'); 
-$lang->story->action->unlinkedfromproject = array('main' => '$date, 由 <strong>$actor</strong> 從' . $lang->projectCommon . ' <strong>$extra</strong> 移除。'); 
+$lang->story->action->reviewed            = array('main' => '$date, 由 <strong>$actor</strong> 記錄評審結果，結果為 <strong>$extra</strong>。', 'extra' => 'reviewResultList');
+$lang->story->action->closed              = array('main' => '$date, 由 <strong>$actor</strong> 關閉，原因為 <strong>$extra</strong> $appendLink。', 'extra' => 'reasonList');
+$lang->story->action->linked2plan         = array('main' => '$date, 由 <strong>$actor</strong> 關聯到計劃 <strong>$extra</strong>。');
+$lang->story->action->unlinkedfromplan    = array('main' => '$date, 由 <strong>$actor</strong> 從計劃 <strong>$extra</strong> 移除。');
+$lang->story->action->linked2project      = array('main' => '$date, 由 <strong>$actor</strong> 關聯到' . $lang->projectCommon . ' <strong>$extra</strong>。');
+$lang->story->action->unlinkedfromproject = array('main' => '$date, 由 <strong>$actor</strong> 從' . $lang->projectCommon . ' <strong>$extra</strong> 移除。');
+$lang->story->action->linked2build        = array('main' => '$date, 由 <strong>$actor</strong> 關聯到版本 <strong>$extra</strong>。');
+$lang->story->action->unlinkedfrombuild   = array('main' => '$date, 由 <strong>$actor</strong> 從版本 <strong>$extra</strong> 移除。');
+$lang->story->action->linked2release      = array('main' => '$date, 由 <strong>$actor</strong> 關聯到發佈 <strong>$extra</strong>。');
+$lang->story->action->unlinkedfromrelease = array('main' => '$date, 由 <strong>$actor</strong> 從發佈 <strong>$extra</strong> 移除。');
+$lang->story->action->linkrelatedstory    = array('main' => '$date, 由 <strong>$actor</strong> 關聯相關需求 <strong>$extra</strong>。');
+$lang->story->action->subdividestory      = array('main' => '$date, 由 <strong>$actor</strong> 細分為需求 <strong>$extra</strong>。');
+$lang->story->action->unlinkrelatedstory  = array('main' => '$date, 由 <strong>$actor</strong> 移除相關需求 <strong>$extra</strong>。');
+$lang->story->action->unlinkchildstory    = array('main' => '$date, 由 <strong>$actor</strong> 移除細分需求 <strong>$extra</strong>。');
 
 /* 統計報表。*/
 $lang->story->report = new stdclass();
@@ -275,7 +299,10 @@ $lang->story->report->storysPerEstimate->graph->xAxisName     = '預計時間';
 $lang->story->report->storysPerChange->graph->xAxisName       = '變更次數';
 
 $lang->story->placeholder = new stdclass();
-$lang->story->placeholder->estimate = "完成該需求的工作量";
+$lang->story->placeholder->estimate = $lang->story->hour;
 
 $lang->story->chosen = new stdClass();
 $lang->story->chosen->reviewedBy = '選擇評審人...';
+
+$lang->story->notice = new stdClass();
+$lang->story->notice->closed = '您選擇的需求已經被關閉了！';

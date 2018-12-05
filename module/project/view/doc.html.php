@@ -3,7 +3,7 @@
  * The doc view file of product module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     product
  * @version     $Id$
@@ -19,7 +19,7 @@
       <?php echo html::icon($lang->icons['doc']);?> <?php echo $lang->project->doc;?>
     </div>
     <div class='actions'>
-      <?php common::printIcon('doc', 'create', "libID=project&moduleID=0&productID=0&projectID=$project->id&from=project");?>
+      <?php common::printIcon('doc', 'create', "libID=" . key($libs) . "&moduleID=0&productID=0&projectID=$project->id&from=project");?>
     </div>
   </div>
   <table class='table table-fixed tablesorter' align='center' id='docList'>

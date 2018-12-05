@@ -1,13 +1,3 @@
-/* Swtich to search module. */
-function browseBySearch(active)
-{
-    $('#querybox').removeClass('hidden');
-    $('.divider').addClass('hidden');
-    $('#' + active + 'Tab').removeClass('active');
-    $('#bysearchTab').addClass('active');
-    $('#bymoduleTab').removeClass('active');
-}
-
 /**
  * Confirm batch delete cases.
  * 
@@ -21,11 +11,24 @@ function confirmBatchDelete(actionLink)
     return false;
 }
 
-$(document).ready(function()
+$(function()
 {
-    $('#' + browseType + 'Tab').addClass('active');
-    $('#module' + moduleID).addClass('active'); 
-    if(browseType == 'bysearch') ajaxGetSearchForm();
+    if($('#caseList thead th.c-title').width() < 150) $('#caseList thead th.c-title').width(150);
 
-    setModal4List('runCase', 'caseList');
+    if(flow == 'onlyTest')
+    {
+        $('#subNavbar > .nav li[data-id=' + browseType + ']').addClass('active');
+
+        if(browseType == 'bysuite')
+        {
+            var $moreSuite = $('#subNavbar > .nav > li[data-id=bysuite]');
+            if($moreSuite.find('.dropdown-menu').children().length)
+            {
+                $moreSuite.find('.dropdown-menu').children().each(function()
+                {
+                    if($(this).data('id') == suiteID) $(this).addClass('active');
+                });
+            }
+        }
+    }
 });

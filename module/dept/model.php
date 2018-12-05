@@ -3,7 +3,7 @@
  * The model file of dept module of ZenTaoPMS.
  *
  * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
- * @license     ZPL (http://zpl.pub/page/zplv11.html)
+ * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     dept
  * @version     $Id: model.php 4210 2013-01-22 01:06:12Z zhujinyonging@gmail.com $
@@ -112,19 +112,20 @@ class deptModel extends model
 
     /**
      * Get the treemenu of departments.
-     * 
-     * @param  int    $rootDeptID 
-     * @param  string $userFunc 
+     *
+     * @param  int        $rootDeptID
+     * @param  string     $userFunc
+     * @param  int        $param
      * @access public
      * @return string
      */
-    public function getTreeMenu($rootDeptID = 0, $userFunc)
+    public function getTreeMenu($rootDeptID = 0, $userFunc, $param = 0)
     {
         $deptMenu = array();
         $stmt = $this->dbh->query($this->buildMenuQuery($rootDeptID));
         while($dept = $stmt->fetch())
         {
-            $linkHtml = call_user_func($userFunc, $dept);
+            $linkHtml = call_user_func($userFunc, $dept, $param);
 
             if(isset($deptMenu[$dept->id]) and !empty($deptMenu[$dept->id]))
             {
@@ -146,7 +147,7 @@ class deptModel extends model
             $deptMenu[$dept->parent] .= "</li>\n"; 
         }
 
-        $lastMenu = "<ul class='tree'>" . @array_pop($deptMenu) . "</ul>\n";
+        $lastMenu = "<ul class='tree' data-ride='tree' data-name='tree-dept'>" . @array_pop($deptMenu) . "</ul>\n";
         return $lastMenu; 
     }
 
@@ -200,6 +201,19 @@ class deptModel extends model
     {
         $linkHtml = html::a(helper::createLink('company', 'browse', "dept={$dept->id}"), $dept->name, '_self', "id='dept{$dept->id}'");
         return $linkHtml;
+    }
+
+    /**
+     * Create the group manage members link.
+     * 
+     * @param  int    $dept 
+     * @param  int    $groupID
+     * @access public
+     * @return string 
+     */
+    public function createGroupManageMemberLink($dept, $groupID)
+    {
+        return html::a(helper::createLink('group', 'managemember', "groupID=$groupID&deptID={$dept->id}"), $dept->name, '_self', "id='dept{$dept->id}'");
     }
 
     /**
@@ -319,6 +333,23 @@ class deptModel extends model
             ->page($pager)
             ->fetchAll();
     }
+
+    /**
+     * Get user pairs of a department.
+     *
+     * @param  int    $deptID
+     * @access public
+     * @return array
+     */
+    public function getDeptUserPairs($deptID = 0)
+    {
+        $childDepts = $this->getAllChildID($deptID);
+        return $this->dao->select('account, realname')->from(TABLE_USER)
+            ->where('deleted')->eq(0)
+            ->beginIF($deptID)->andWhere('dept')->in($childDepts)->fi()
+            ->orderBy('account')
+            ->fetchPairs();
+    }
     
     /**
      * Delete a department.
@@ -381,5 +412,31 @@ class deptModel extends model
         {
             $this->dao->update(TABLE_DEPT)->data($dept)->where('id')->eq($dept->id)->exec();
         }
+    }
+
+    /**
+     * Get data structure
+     * @param  integer $rootDeptID
+     * @access public
+     * @return object
+     */
+    public function getDataStructure($rootDeptID = 0) 
+    {
+        $tree = array_values($this->getSons($rootDeptID));
+        $users = $this->loadModel('user')->getPairs('noletter|noclosed|nodeleted|all');
+        if(count($tree))
+        {
+            foreach ($tree as $node)
+            {
+                $node->managerName = $users[$node->manager];
+                $children = $this->getDataStructure($node->id);
+                if(count($children))
+                {
+                    $node->children = $children;
+                    $node->actions = array('delete' => false);
+                }
+            }
+        }
+        return $tree; 
     }
 }
